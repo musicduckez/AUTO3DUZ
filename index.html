@@ -1,0 +1,4458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AUTO3D // O'zbekiston Milliy Kuzov Va Avto Ehtiyot Qismlari</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Инновационный автоконфигуратор и магазин кузовных деталей для китайских авто в Узбекистане. Соберите и кастомизируйте свой автомобиль онлайн. Доставка из Китая в Ташкент, Самарканд и регионы.">
+    <meta name="keywords" content="автозапчасти узбекистан, автосалон китайских машин ташкент, byd song plus кузов, zeekr 001 тюнинг, 3д конструктор авто">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;700;900&family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Boxicons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+    
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        /* DESIGN SYSTEM: MODERN UZBEK ETHNO-CYBERPUNK */
+        :root {
+            --bg-color: #020617;
+            --bg-glow-1: #002d2b; /* Emerald green ambient glow */
+            --bg-glow-2: #1e1603; /* Deep gold ambient glow */
+            --emerald-uz: #004b49;
+            --emerald-bright: #028f80;
+            --gold-uz: #d4af37;
+            --gold-neon: #ffd700;
+            --card-bg: rgba(6, 17, 26, 0.7);
+            --card-bg-hover: rgba(12, 30, 44, 0.9);
+            --border-color: rgba(212, 175, 55, 0.2);
+            --border-hover: rgba(2, 143, 128, 0.5);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --font-primary: 'Outfit', sans-serif;
+            --font-header: 'Montserrat', sans-serif;
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --neon-shadow-gold: 0 0 15px rgba(255, 215, 0, 0.25);
+            --neon-shadow-emerald: 0 0 15px rgba(2, 143, 128, 0.25);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 20%, var(--bg-glow-1) 0%, transparent 50%),
+                radial-gradient(circle at 90% 80%, var(--bg-glow-2) 0%, transparent 50%);
+            background-attachment: fixed;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* CUSTOM SCROLLBAR */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: var(--bg-color);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, var(--gold-uz), var(--emerald-bright));
+            border-radius: 4px;
+        }
+
+        /* UZBEK PATTERN OVERLAY */
+        .pattern-overlay {
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60"><path d="M30 0 L40 20 L60 30 L40 40 L30 60 L20 40 L0 30 L20 20 Z" fill="none" stroke="rgba(212,175,55,0.025)" stroke-width="1"/></svg>');
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .uzbek-header-line {
+            height: 5px;
+            background: linear-gradient(90deg, var(--emerald-bright), var(--gold-uz), var(--emerald-bright));
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+        }
+
+        /* CONTAINER */
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            padding: 0 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* TYPOGRAPHY & BUTTONS */
+        .glow-text {
+            background: linear-gradient(135deg, var(--gold-neon) 0%, var(--emerald-bright) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-badge {
+            background: rgba(212, 175, 55, 0.1);
+            border: 1px solid var(--gold-uz);
+            color: var(--gold-neon);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .section-title {
+            font-family: var(--font-header);
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .section-subtitle {
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 15px auto;
+            font-size: 1rem;
+        }
+
+        /* ORNAMENT DIVISION */
+        .ornament-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            margin: 10px 0;
+        }
+
+        .ornament-divider span {
+            height: 1px;
+            width: 80px;
+            background: linear-gradient(90deg, transparent, var(--gold-uz));
+        }
+
+        .ornament-divider span:last-child {
+            background: linear-gradient(270deg, transparent, var(--gold-uz));
+        }
+
+        .ornament-star {
+            width: 24px;
+            height: 24px;
+            fill: none;
+            stroke: var(--gold-uz);
+            stroke-width: 1.5;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-family: var(--font-header);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            text-decoration: none;
+            position: relative;
+            z-index: 1;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold-uz) 0%, var(--emerald-bright) 100%);
+            color: #020617;
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(2, 143, 128, 0.4);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.03);
+            color: #fff;
+            border: 1px solid var(--border-color);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--emerald-bright);
+            background: rgba(2, 143, 128, 0.05);
+            transform: translateY(-2px);
+            box-shadow: var(--neon-shadow-emerald);
+        }
+
+        /* 3D TILT EFFECT */
+        .card-3d {
+            transform-style: preserve-3d;
+            transform: perspective(1000px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg));
+            transition: transform 0.1s ease;
+        }
+
+        /* HEADER */
+        header {
+            position: fixed;
+            top: 5px;
+            left: 0;
+            width: 100%;
+            z-index: 999;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        header.scrolled {
+            background: rgba(2, 6, 23, 0.95);
+            border-bottom: 1px solid var(--border-color);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+        }
+
+        .logo {
+            font-family: var(--font-header);
+            font-weight: 900;
+            font-size: 1.5rem;
+            color: #fff;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: 1px;
+        }
+
+        .logo span {
+            color: var(--gold-uz);
+        }
+
+        .logo i {
+            color: var(--emerald-bright);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 5px var(--emerald-bright));
+        }
+
+        .nav-menu {
+            display: flex;
+            align-items: center;
+            gap: 25px;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--text-secondary);
+            font-family: var(--font-header);
+            font-weight: 600;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: var(--transition);
+            position: relative;
+            padding: 5px 0;
+        }
+
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold-uz), var(--emerald-bright));
+            transition: var(--transition);
+        }
+
+        .nav-link:hover {
+            color: #fff;
+        }
+
+        .nav-link:hover::after {
+            width: 100%;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        /* Lang & Currency Buttons */
+        .control-group {
+            display: flex;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+            padding: 2px;
+        }
+
+        .control-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px 12px;
+            font-family: var(--font-header);
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .control-btn.active {
+            background: var(--gold-uz);
+            color: #020617;
+        }
+
+        .control-btn.currency-btn.active {
+            background: var(--emerald-bright);
+            color: #fff;
+        }
+
+        .menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        /* HERO SECTION */
+        .hero {
+            padding: 160px 0 100px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .hero-badge {
+            background: rgba(2, 143, 128, 0.1);
+            border: 1px solid var(--emerald-bright);
+            color: var(--emerald-bright);
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .hero-title {
+            font-family: var(--font-header);
+            font-size: 3.5rem;
+            font-weight: 900;
+            line-height: 1.2;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .hero-subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 35px;
+            max-width: 650px;
+        }
+
+        .hero-btns {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 50px;
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 40px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 30px;
+        }
+
+        .hero-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .hero-stat-number {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--gold-neon);
+            font-family: var(--font-primary);
+        }
+
+        .hero-stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 5px;
+        }
+
+        .hero-3d-wrapper {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            border-radius: 16px;
+            background: rgba(6, 17, 26, 0.4);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        #hero-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .hero-3d-overlay {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .hero-3d-badge {
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(5px);
+        }
+
+        /* SECTION 1: CARS SHOWROOM (AUTO SELECTION) */
+        .cars-section {
+            padding: 80px 0;
+            background: rgba(0, 75, 73, 0.05); /* emerald accent bg */
+            border-top: 1px solid rgba(212, 175, 55, 0.05);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.05);
+        }
+
+        .cars-filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            flex-wrap: wrap;
+        }
+
+        .filter-chip {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-family: var(--font-header);
+            font-weight: 700;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .filter-chip.active, .filter-chip:hover {
+            background: var(--emerald-bright);
+            color: #fff;
+            border-color: var(--emerald-bright);
+            box-shadow: var(--neon-shadow-emerald);
+        }
+
+        .cars-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+            gap: 30px;
+        }
+
+        .car-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .car-card:hover {
+            border-color: var(--emerald-bright);
+            background: var(--card-bg-hover);
+            box-shadow: 0 10px 30px rgba(2, 143, 128, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .car-img-container {
+            width: 100%;
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+            background: #09131b;
+        }
+
+        .car-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .car-card:hover .car-img-container img {
+            transform: scale(1.08);
+        }
+
+        .car-brand-tag {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: rgba(2, 6, 23, 0.8);
+            border: 1px solid var(--gold-uz);
+            color: var(--gold-neon);
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .car-info {
+            padding: 25px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .car-title {
+            font-family: var(--font-header);
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .car-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        /* Trim switcher inside card */
+        .car-trims-title {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            color: var(--gold-neon);
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .car-trims {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .trim-tab {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-grow: 1;
+            text-align: center;
+        }
+
+        .trim-tab.active {
+            background: rgba(2, 143, 128, 0.2);
+            color: #fff;
+            border-color: var(--emerald-bright);
+        }
+
+        .car-specs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            margin-bottom: 20px;
+        }
+
+        .spec-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .spec-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .spec-value {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .car-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+        }
+
+        .car-price-block {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .price-label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+        }
+
+        .price-value-active {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: var(--gold-neon);
+        }
+
+        .price-value-sub {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* SECTION 2: 3D CONSTRUCTOR & TUNING */
+        .configurator-section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .configurator-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .config-tab {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-family: var(--font-header);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .config-tab.active {
+            background: linear-gradient(135deg, var(--gold-uz) 0%, var(--emerald-bright) 100%);
+            color: #020617;
+            border-color: transparent;
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        .config-pane {
+            display: none;
+        }
+
+        .config-pane.active {
+            display: block;
+        }
+
+        /* TAB 1: SHOWROOM HOTSPOTS */
+        .showroom-grid {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .showroom-visualizer {
+            position: relative;
+            background: rgba(6, 17, 26, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0, 75, 73, 0.3);
+        }
+
+        .showroom-car-img {
+            max-width: 90%;
+            height: auto;
+            position: relative;
+            z-index: 2;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.5));
+        }
+
+        /* Hotspots System */
+        .hotspot-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 3;
+        }
+
+        .hotspot {
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+            transform: translate(-50%, -50%);
+        }
+
+        .hotspot-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--gold-neon);
+            border: 2px fill #020617;
+            box-shadow: 0 0 10px var(--gold-neon);
+            position: absolute;
+            z-index: 2;
+            transition: var(--transition);
+        }
+
+        .hotspot-pulse {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--gold-neon);
+            position: absolute;
+            z-index: 1;
+            animation: pulse 2s infinite;
+        }
+
+        .hotspot:hover .hotspot-circle, .hotspot.active .hotspot-circle {
+            background: var(--emerald-bright);
+            box-shadow: 0 0 15px var(--emerald-bright);
+            transform: scale(1.2);
+        }
+
+        .hotspot:hover .hotspot-pulse, .hotspot.active .hotspot-pulse {
+            background: var(--emerald-bright);
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(2.5);
+                opacity: 0;
+            }
+        }
+
+        /* Hotspot Calibrated coordinates for SUV profile */
+        .hs-bumper_f { top: 68%; left: 18%; }
+        .hs-headlight { top: 52%; left: 24%; }
+        .hs-hood { top: 46%; left: 32%; }
+        .hs-grille { top: 60%; left: 16%; }
+        .hs-fender { top: 54%; left: 31%; }
+        .hs-mirror { top: 44%; left: 47%; }
+        .hs-door { top: 58%; left: 56%; }
+        .hs-bumper_r { top: 68%; left: 86%; }
+        .hs-trunk { top: 48%; left: 84%; }
+
+        .showroom-detail-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        .part-header {
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 20px;
+            margin-bottom: 20px;
+        }
+
+        .part-title {
+            font-family: var(--font-header);
+            font-size: 1.3rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        .part-code {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-weight: 600;
+            background: rgba(255, 255, 255, 0.03);
+            padding: 3px 8px;
+            border-radius: 4px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .part-image-box {
+            width: 100%;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: #09131b;
+        }
+
+        .part-image-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .part-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .part-status.instock {
+            color: var(--emerald-bright);
+        }
+
+        .part-status.instock::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: var(--emerald-bright);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--emerald-bright);
+        }
+
+        .part-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        /* TAB 2: 3D TUNING CONSTRUCTOR */
+        .constructor-grid {
+            display: grid;
+            grid-template-columns: 0.7fr 1.3fr;
+            gap: 40px;
+        }
+
+        .constructor-controls {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .control-section-title {
+            font-family: var(--font-header);
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 10px;
+        }
+
+        .control-section-title i {
+            color: var(--gold-neon);
+        }
+
+        .option-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .option-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--text-secondary);
+            letter-spacing: 0.5px;
+        }
+
+        .color-selector {
+            display: flex;
+            gap: 15px;
+        }
+
+        .color-option {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: var(--transition);
+            box-shadow: 0 0 5px rgba(0,0,0,0.5);
+        }
+
+        .color-option.active {
+            border-color: #fff;
+            transform: scale(1.15);
+            box-shadow: 0 0 10px var(--emerald-bright);
+        }
+
+        .tuning-picker-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .tuning-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 12px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tuning-item:hover, .tuning-item.active {
+            background: rgba(2, 143, 128, 0.08);
+            border-color: var(--emerald-bright);
+        }
+
+        .tuning-item-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .tuning-radio-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 2px solid var(--text-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .tuning-item.active .tuning-radio-dot {
+            border-color: var(--emerald-bright);
+        }
+
+        .tuning-item.active .tuning-radio-dot::after {
+            content: '';
+            width: 6px;
+            height: 6px;
+            background: var(--emerald-bright);
+            border-radius: 50%;
+        }
+
+        .tuning-item-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .tuning-item-price {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--gold-neon);
+        }
+
+        /* 3D Visualizer canvas in constructor */
+        .constructor-visualizer-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+
+        .constructor-3d-box {
+            position: relative;
+            width: 100%;
+            height: 480px;
+            border-radius: 16px;
+            background: rgba(6, 17, 26, 0.5);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        #constructor-canvas {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .constructor-overlay-3d {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+            pointer-events: none;
+        }
+
+        .constructor-bill-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+
+        .bill-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .bill-title {
+            font-family: var(--font-header);
+            font-size: 1.1rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .bill-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .bill-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .bill-item-value {
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .bill-total {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .bill-total-label {
+            font-family: var(--font-header);
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+
+        .bill-total-price {
+            text-align: right;
+        }
+
+        .bill-total-price-main {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--gold-neon);
+        }
+
+        .bill-total-price-sub {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* SECTION 3: SPARE PARTS CATALOG */
+        .catalog-section {
+            padding: 80px 0;
+        }
+
+        .catalog-search-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 40px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input-wrap {
+            position: relative;
+            flex-grow: 1;
+            min-width: 280px;
+        }
+
+        .search-input-wrap i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+        }
+
+        .search-input {
+            width: 100%;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border-color);
+            padding: 14px 20px 14px 45px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: var(--font-primary);
+            transition: var(--transition);
+        }
+
+        .search-input:focus {
+            border-color: var(--emerald-bright);
+            box-shadow: var(--neon-shadow-emerald);
+        }
+
+        .catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .part-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .part-card:hover {
+            border-color: var(--emerald-bright);
+            background: var(--card-bg-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(2, 143, 128, 0.15);
+        }
+
+        .part-card-img {
+            width: 100%;
+            height: 180px;
+            overflow: hidden;
+            position: relative;
+            background: #09131b;
+        }
+
+        .part-card-img img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s ease;
+        }
+
+        .part-card:hover .part-card-img img {
+            transform: scale(1.06);
+        }
+
+        .part-card-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: var(--emerald-uz);
+            color: #fff;
+            padding: 3px 8px;
+            border-radius: 3px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .part-card-info {
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .part-card-title {
+            font-family: var(--font-header);
+            font-size: 1rem;
+            font-weight: 750;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .part-card-desc {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            margin-bottom: 15px;
+            flex-grow: 1;
+        }
+
+        .part-card-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .part-card-price-main {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: var(--gold-neon);
+        }
+
+        .part-card-price-sub {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+        }
+
+        .part-card-btn {
+            background: rgba(2, 143, 128, 0.15);
+            border: 1px solid var(--emerald-bright);
+            color: var(--emerald-bright);
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-family: var(--font-header);
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .part-card-btn:hover {
+            background: var(--emerald-bright);
+            color: #fff;
+        }
+
+        /* SECTION 4: ROUTE MAP & LOGISTICS STATS */
+        .map-section {
+            padding: 80px 0;
+            background: rgba(212, 175, 55, 0.02);
+            border-top: 1px solid rgba(212, 175, 55, 0.05);
+        }
+
+        .map-layout {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .map-visualizer {
+            background: rgba(6, 17, 26, 0.5);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        .map-svg-wrap {
+            width: 100%;
+            height: auto;
+        }
+
+        /* SVG Route Map Styling */
+        .map-route-line {
+            stroke: var(--emerald-bright);
+            stroke-width: 2.5;
+            stroke-dasharray: 8 4;
+            animation: dash 30s linear infinite;
+            fill: none;
+        }
+
+        @keyframes dash {
+            to {
+                stroke-dashoffset: -1000;
+            }
+        }
+
+        .map-node {
+            fill: #020617;
+            stroke: var(--gold-neon);
+            stroke-width: 2.5;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .map-node:hover {
+            fill: var(--emerald-bright);
+            stroke: #fff;
+            r: 7;
+        }
+
+        .map-node-pulse {
+            fill: var(--gold-neon);
+            animation: pulse-node 2.5s infinite;
+        }
+
+        @keyframes pulse-node {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        .map-truck-icon {
+            filter: drop-shadow(0 0 5px var(--emerald-bright));
+        }
+
+        .map-panel {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .map-panel-title {
+            font-family: var(--font-header);
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .map-panel-title i {
+            color: var(--gold-neon);
+        }
+
+        /* Tracking Terminal Log Console */
+        .terminal-console {
+            background: #010409;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 15px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.8rem;
+            color: #39ff14; /* Cyber green */
+            height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .terminal-line {
+            display: flex;
+            gap: 10px;
+        }
+
+        .terminal-time {
+            color: var(--text-secondary);
+        }
+
+        .terminal-status {
+            color: #00f2fe;
+        }
+
+        .stats-dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 15px;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .dashboard-card-val {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+        }
+
+        .dashboard-card-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        /* SECTION 5: SERVICES */
+        .services-section {
+            padding: 80px 0;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
+        }
+
+        .service-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            transition: var(--transition);
+            backdrop-filter: blur(8px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .service-card:hover {
+            border-color: var(--emerald-bright);
+            background: var(--card-bg-hover);
+            transform: translateY(-5px);
+            box-shadow: var(--neon-shadow-emerald);
+        }
+
+        .service-icon {
+            font-size: 2.2rem;
+            color: var(--gold-neon);
+            margin-bottom: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: rgba(212, 175, 55, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .service-title {
+            font-family: var(--font-header);
+            font-size: 1.15rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .service-desc {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            flex-grow: 1;
+        }
+
+        .service-price {
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 15px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--gold-neon);
+        }
+
+        /* SECTION 6: LEAD FORM */
+        .order-section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        .order-form-container {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 50px;
+            backdrop-filter: blur(16px);
+            max-width: 900px;
+            margin: 0 auto;
+            box-shadow: var(--neon-shadow-gold);
+        }
+
+        .order-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 50px;
+        }
+
+        .order-info-col {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .order-benefit-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .order-benefit-item {
+            display: flex;
+            gap: 15px;
+        }
+
+        .order-benefit-item i {
+            color: var(--emerald-bright);
+            font-size: 1.5rem;
+            margin-top: 3px;
+        }
+
+        .order-benefit-item h4 {
+            font-size: 0.95rem;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
+        .order-benefit-item p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .form-group {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-color);
+            padding: 16px 20px;
+            border-radius: 8px;
+            color: #fff;
+            font-family: var(--font-primary);
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .form-input:focus {
+            border-color: var(--emerald-bright);
+            background: rgba(2, 143, 128, 0.02);
+        }
+
+        .form-label {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus ~ .form-label, .form-input:not(:placeholder-shown) ~ .form-label {
+            top: 0;
+            font-size: 0.75rem;
+            background: var(--bg-color);
+            padding: 2px 8px;
+            color: var(--emerald-bright);
+            transform: translateY(-50%) translateX(-5px);
+        }
+
+        /* Success Overlay */
+        .success-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.95);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 40px;
+            z-index: 10;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .success-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(2, 143, 128, 0.1);
+            border: 2px solid var(--emerald-bright);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: var(--emerald-bright);
+            margin-bottom: 25px;
+            animation: bounce 1.5s ease infinite;
+        }
+
+        /* ADMIN PANEL OVERLAY */
+        .admin-trigger {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-family: var(--font-header);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: var(--transition);
+        }
+
+        .admin-trigger:hover {
+            color: var(--gold-neon);
+        }
+
+        .admin-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(2, 6, 23, 0.9);
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .admin-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .admin-box {
+            background: #060f18;
+            border: 1px solid var(--gold-uz);
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+            position: relative;
+        }
+
+        .admin-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .admin-close:hover {
+            color: #fff;
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+        }
+
+        .admin-tab-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-header);
+            font-weight: 700;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 4px;
+            transition: var(--transition);
+        }
+
+        .admin-tab-btn.active {
+            background: rgba(212, 175, 55, 0.15);
+            color: var(--gold-neon);
+        }
+
+        .admin-pane {
+            display: none;
+        }
+
+        .admin-pane.active {
+            display: block;
+        }
+
+        .admin-form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* FOOTER */
+        footer {
+            background: #010409;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding: 80px 0 30px 0;
+            position: relative;
+            z-index: 2;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+
+        .footer-logo-col p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin: 20px 0;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .social-link {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .social-link:hover {
+            border-color: var(--emerald-bright);
+            color: #fff;
+            background: rgba(2, 143, 128, 0.05);
+        }
+
+        .footer-title {
+            font-family: var(--font-header);
+            font-size: 1.05rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 25px;
+            color: #fff;
+        }
+
+        .footer-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: #fff;
+            padding-left: 5px;
+        }
+
+        .footer-address {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .address-item {
+            display: flex;
+            gap: 10px;
+        }
+
+        .address-item i {
+            color: var(--gold-neon);
+            font-size: 1.1rem;
+            margin-top: 3px;
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* RESPONSIVE DESIGN */
+        @media (max-width: 1024px) {
+            .hero-grid, .showroom-grid, .constructor-grid, .map-layout, .order-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-3d-wrapper {
+                height: 350px;
+            }
+            .constructor-3d-box {
+                height: 380px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            html {
+                font-size: 15px;
+            }
+            .nav-menu {
+                display: none;
+                position: absolute;
+                top: 100%;
+                left: 0;
+                width: 100%;
+                background: #020617;
+                border-bottom: 1px solid var(--border-color);
+                flex-direction: column;
+                padding: 30px;
+                gap: 20px;
+            }
+            .nav-menu.active {
+                display: flex;
+            }
+            .menu-toggle {
+                display: block;
+            }
+            .hero-title {
+                font-size: 2.6rem;
+            }
+            .footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+            .hero-btns {
+                flex-direction: column;
+            }
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="uzbek-header-line"></div>
+    <div class="pattern-overlay"></div>
+
+    <!-- HEADER -->
+    <header id="navbar">
+        <div class="container header-wrap">
+            <a href="#" class="logo">
+                <i class="bx bxs-car-mechanic"></i>AUTO3D<span>//UZ</span>
+            </a>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#hero" class="nav-link" data-i18n="nav_home">Главная</a></li>
+                <li><a href="#cars" class="nav-link" data-i18n="nav_cars">Автомобили</a></li>
+                <li><a href="#configurator" class="nav-link" data-i18n="nav_configurator">3D Конструктор</a></li>
+                <li><a href="#catalog" class="nav-link" data-i18n="nav_catalog">Запчасти</a></li>
+                <li><a href="#map" class="nav-link" data-i18n="nav_logistics">Доставка</a></li>
+                <li><a href="#services" class="nav-link" data-i18n="nav_services">Услуги</a></li>
+            </ul>
+            <div class="header-controls">
+                <!-- Currency Toggle -->
+                <div class="control-group">
+                    <button class="control-btn currency-btn active" onclick="switchCurrency('UZS')">UZS</button>
+                    <button class="control-btn currency-btn" onclick="switchCurrency('USD')">USD</button>
+                    <button class="control-btn currency-btn" onclick="switchCurrency('CNY')">CNY</button>
+                </div>
+                <!-- Language Toggle -->
+                <div class="control-group">
+                    <button class="control-btn lang-btn active" onclick="switchLang('uz')">UZ</button>
+                    <button class="control-btn lang-btn" onclick="switchLang('ru')">RU</button>
+                    <button class="control-btn lang-btn" onclick="switchLang('en')">EN</button>
+                </div>
+                <!-- Collapsible Toggle -->
+                <button class="menu-toggle" onclick="toggleMenu()"><i class="bx bx-menu"></i></button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO SECTION -->
+    <section class="hero" id="hero">
+        <div class="container hero-grid">
+            <div>
+                <div class="hero-badge">
+                    <i class="bx bx-shield-quarter"></i>
+                    <span data-i18n="hero_badge">Neon Uzbek Cyberpunk Style</span>
+                </div>
+                <h1 class="hero-title">
+                    <span data-i18n="hero_title_1">Премиальные детали</span><br>
+                    <span class="glow-text" data-i18n="hero_title_2">в узбекском стиле</span>
+                </h1>
+                <p class="hero-subtitle" data-i18n="hero_subtitle">
+                    Эксклюзивный импорт и подбор запчастей для ведущих китайских электромобилей. Сконструируйте ваш автомобиль в 3D и оформите быструю доставку напрямую из Китая.
+                </p>
+                <div class="hero-btns">
+                    <a href="#configurator" class="btn btn-primary" data-i18n="hero_btn_config">Конструктор тюнинга</a>
+                    <a href="#catalog" class="btn btn-secondary" data-i18n="hero_btn_catalog">Каталог деталей</a>
+                </div>
+                <div class="hero-stats">
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">15 400+</span>
+                        <span class="hero-stat-label" data-i18n="hero_stat_parts">Деталей на складе</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">7-10</span>
+                        <span class="hero-stat-label" data-i18n="hero_stat_days">Дней доставки</span>
+                    </div>
+                    <div class="hero-stat-item">
+                        <span class="hero-stat-number">100%</span>
+                        <span class="hero-stat-label" data-i18n="hero_stat_fits">Идеальный зазор</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="hero-3d-wrapper card-3d">
+                <canvas id="hero-canvas"></canvas>
+                <div class="hero-3d-overlay">
+                    <div class="hero-3d-badge">
+                        <i class="bx bx-cube-alt"></i>
+                        <span data-i18n="hero_3d_mode">Интерактивный 3D Узел</span>
+                    </div>
+                    <div class="hero-3d-badge" style="pointer-events: auto; cursor: pointer;" onclick="rotateHeroMesh()">
+                        <i class="bx bx-rotate-right"></i>
+                        <span data-i18n="hero_3d_spin">Вращать</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 1: CARS IN CONFIGURATIONS -->
+    <section class="cars-section" id="cars">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge" data-i18n="cars_badge">Автосалон</span>
+                <h2 class="section-title" data-i18n="cars_title">Модельный ряд Китая</h2>
+                <div class="ornament-divider">
+                    <span></span>
+                    <svg class="ornament-star" viewBox="0 0 100 100">
+                        <path d="M 50 2 L 64 36 L 98 50 L 64 64 L 50 98 L 36 64 L 2 50 L 36 36 Z"/>
+                    </svg>
+                    <span></span>
+                </div>
+                <p class="section-subtitle" data-i18n="cars_subtitle">Поставляем напрямую с заводов Китая в Узбекистан. Выберите комплектацию под ваш бюджет и стиль.</p>
+            </div>
+
+            <!-- Brand Filter -->
+            <div class="cars-filter-bar">
+                <button class="filter-chip active" onclick="filterCars('all', this)" data-i18n="filter_all">Все</button>
+                <button class="filter-chip" onclick="filterCars('BYD', this)">BYD</button>
+                <button class="filter-chip" onclick="filterCars('Geely', this)">Geely</button>
+                <button class="filter-chip" onclick="filterCars('Zeekr', this)">Zeekr</button>
+                <button class="filter-chip" onclick="filterCars('Li Auto', this)">Li Auto</button>
+            </div>
+
+            <!-- Cars Grid -->
+            <div class="cars-grid" id="carsGrid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 2: 3D CONSTRUCTOR / CONFIGURATOR -->
+    <section class="configurator-section" id="configurator">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge" data-i18n="config_badge">3D Ателье</span>
+                <h2 class="section-title" data-i18n="config_title">Интерактивный Конструктор</h2>
+                <div class="ornament-divider">
+                    <span></span>
+                    <svg class="ornament-star" viewBox="0 0 100 100">
+                        <path d="M 50 2 L 64 36 L 98 50 L 64 64 L 50 98 L 36 64 L 2 50 L 36 36 Z"/>
+                    </svg>
+                    <span></span>
+                </div>
+                <p class="section-subtitle" data-i18n="config_subtitle">Специфицируйте оригинальные кузовные детали на чертеже или соберите свой уникальный тюнинг-проект в 3D пространстве.</p>
+            </div>
+
+            <div class="configurator-tabs">
+                <button class="config-tab active" onclick="switchConfigPane('showroom', this)">
+                    <i class="bx bx-bullseye"></i> <span data-i18n="config_tab_showroom">Showroom Деталей</span>
+                </button>
+                <button class="config-tab" onclick="switchConfigPane('builder', this)">
+                    <i class="bx bx-paint"></i> <span data-i18n="config_tab_builder">3D Тюнинг Сборка</span>
+                </button>
+            </div>
+
+            <!-- PANE 1: SHOWROOM HOTSPOTS -->
+            <div class="config-pane active" id="pane-showroom">
+                <div class="showroom-grid">
+                    <!-- Dynamic Interactive blueprint -->
+                    <div class="showroom-visualizer card-3d">
+                        <img src="https://images.unsplash.com/photo-1699039641740-424a10fb176e?auto=format&fit=crop&q=80&w=800" alt="Car Layout" class="showroom-car-img" id="showroomCarImg">
+                        <div class="hotspot-overlay">
+                            <!-- Hotspots are calibrated for a side/diagonal profile SUV/Hatch -->
+                            <div class="hotspot hs-bumper_f active" onclick="loadHotspotPart('bumper_f', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-headlight" onclick="loadHotspotPart('headlight', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-hood" onclick="loadHotspotPart('hood', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-grille" onclick="loadHotspotPart('grille', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-fender" onclick="loadHotspotPart('fender', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-mirror" onclick="loadHotspotPart('mirror', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-door" onclick="loadHotspotPart('door', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-bumper_r" onclick="loadHotspotPart('bumper_r', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                            <div class="hotspot hs-trunk" onclick="loadHotspotPart('trunk', this)">
+                                <div class="hotspot-circle"></div>
+                                <div class="hotspot-pulse"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details Card -->
+                    <div class="showroom-detail-card card-3d">
+                        <div class="part-header">
+                            <span class="part-code" id="partCode">Арт: BYD-SP-BUMP-F</span>
+                            <h3 class="part-title" id="partTitle">Передний бампер BYD Song Plus</h3>
+                        </div>
+                        <div class="part-image-box">
+                            <img src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=600" alt="Part Image" id="partImg">
+                        </div>
+                        <div class="part-status instock" id="partStatus" data-i18n="part_instock">В наличии в Ташкенте</div>
+                        <p class="part-desc" id="partDesc">Оригинальный передний бампер, идеальное литье из полипропилена. Подходит под покраску. Поддерживает парктроники и камеру 360.</p>
+                        <div class="car-footer">
+                            <div class="car-price-block">
+                                <span class="price-label" data-i18n="price">Цена</span>
+                                <span class="price-value-active" id="partPriceMain">3 900 000 UZS</span>
+                                <span class="price-value-sub" id="partPriceSub">$310 / 2240 CNY</span>
+                            </div>
+                            <button class="btn btn-primary" onclick="orderPartFromConfig()" data-i18n="order_btn">Заказать деталь</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PANE 2: 3D TUNING CONSTRUCTOR -->
+            <div class="config-pane" id="pane-builder">
+                <div class="constructor-grid">
+                    <!-- Tuning Sidebar Controls -->
+                    <div class="constructor-controls card-3d">
+                        <div>
+                            <div class="control-section-title">
+                                <i class="bx bx-car"></i> <span data-i18n="tuning_model">Модель</span>
+                            </div>
+                            <div class="option-group" style="margin-top: 15px;">
+                                <select class="form-input" id="constructorCarSelect" onchange="changeConstructorCar()" style="background:#09131b; cursor:pointer;">
+                                    <option value="BYD Song Plus">BYD Song Plus</option>
+                                    <option value="Geely Monjaro">Geely Monjaro</option>
+                                    <option value="Zeekr 001">Zeekr 001</option>
+                                    <option value="Chery Tiggo 8 Pro">Chery Tiggo 8 Pro</option>
+                                    <option value="Li Auto L9">Li Auto L9</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="control-section-title">
+                                <i class="bx bx-palette"></i> <span data-i18n="tuning_color">Цвет кузова (Миллий)</span>
+                            </div>
+                            <div class="color-selector" style="margin-top: 15px;">
+                                <div class="color-option active" style="background:#028f80;" onclick="setCarColor('#028f80', 'Samarkand Turquoise', this)" title="Самаркандский Бирюзовый"></div>
+                                <div class="color-option" style="background:#d4af37;" onclick="setCarColor('#d4af37', 'Bukhara Gold', this)" title="Бухарский Золотой"></div>
+                                <div class="color-option" style="background:#e2e8f0;" onclick="setCarColor('#e2e8f0', 'Tashkent Pearl', this)" title="Ташкентский Жемчуг"></div>
+                                <div class="color-option" style="background:#0f172a;" onclick="setCarColor('#0f172a', 'Urgench Coal', this)" title="Ургенчский Уголь"></div>
+                            </div>
+                            <div style="font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px;">
+                                <span data-i18n="selected_color">Выбранный цвет:</span> <strong id="selectedColorName" style="color:var(--gold-neon);">Samarkand Turquoise</strong>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="control-section-title">
+                                <i class="bx bx-disc"></i> <span data-i18n="tuning_wheels">Колесные Диски</span>
+                            </div>
+                            <div class="tuning-picker-list" style="margin-top: 15px;">
+                                <div class="tuning-item active" onclick="setWheels('classic', 0, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="wheels_r18">R18 Classic OEM</span>
+                                    </div>
+                                    <span class="tuning-item-price" data-i18n="wheels_free">В комплекте</span>
+                                </div>
+                                <div class="tuning-item" onclick="setWheels('sport', 6500000, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="wheels_r19">R19 Carbon Sport</span>
+                                    </div>
+                                    <span class="tuning-item-price" id="priceWheelsSport">+6,500,000 UZS</span>
+                                </div>
+                                <div class="tuning-item" onclick="setWheels('gold', 13000000, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="wheels_r20">R20 Uzbek Gold Edition</span>
+                                    </div>
+                                    <span class="tuning-item-price" id="priceWheelsGold">+13,000,000 UZS</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="control-section-title">
+                                <i class="bx bx-wind"></i> <span data-i18n="tuning_kit">Аэродинамический обвес</span>
+                            </div>
+                            <div class="tuning-picker-list" style="margin-top: 15px;">
+                                <div class="tuning-item active" onclick="setBodyKit('oem', 0, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="kit_oem">Заводской (OEM)</span>
+                                    </div>
+                                    <span class="tuning-item-price" data-i18n="kit_free">В комплекте</span>
+                                </div>
+                                <div class="tuning-item" onclick="setBodyKit('sport', 19000000, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="kit_sport">Спортивный Carbon обвес</span>
+                                    </div>
+                                    <span class="tuning-item-price" id="priceKitSport">+19,000,000 UZS</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="control-section-title">
+                                <i class="bx bx-shield"></i> <span data-i18n="tuning_tint">Тонировка стекол</span>
+                            </div>
+                            <div class="tuning-picker-list" style="margin-top: 15px;">
+                                <div class="tuning-item active" onclick="setTint('none', 0, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="tint_none">Без тонировки</span>
+                                    </div>
+                                    <span class="tuning-item-price" data-i18n="tint_free">В комплекте</span>
+                                </div>
+                                <div class="tuning-item" onclick="setTint('tint30', 2500000, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="tint_30">Задняя полусфера 30%</span>
+                                    </div>
+                                    <span class="tuning-item-price" id="priceTint30">+2,500,000 UZS</span>
+                                </div>
+                                <div class="tuning-item" onclick="setTint('tint100', 5000000, this)">
+                                    <div class="tuning-item-info">
+                                        <div class="tuning-radio-dot"></div>
+                                        <span class="tuning-item-text" data-i18n="tint_100">Круговая Llumar 100%</span>
+                                    </div>
+                                    <span class="tuning-item-price" id="priceTint100">+5,000,000 UZS</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 3D Visualizer & Estimation Invoice -->
+                    <div class="constructor-visualizer-wrap">
+                        <div class="constructor-3d-box">
+                            <canvas id="constructor-canvas"></canvas>
+                            <div class="constructor-overlay-3d">
+                                <div class="hero-3d-badge">
+                                    <i class="bx bx-check-double" style="color:var(--emerald-bright);"></i>
+                                    <span id="constructorCarTitleDisplay">BYD Song Plus 3D Custom</span>
+                                </div>
+                                <div class="hero-3d-badge">
+                                    <i class="bx bx-refresh"></i>
+                                    <span data-i18n="rotate_info">Вращайте мышью</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bill of materials -->
+                        <div class="constructor-bill-card card-3d">
+                            <div class="bill-header">
+                                <span class="bill-title" data-i18n="bill_title">Смета сборки автомобиля</span>
+                                <span style="font-size:0.75rem; color:var(--text-secondary);" id="billDate">2026-07-16</span>
+                            </div>
+                            <ul class="bill-list">
+                                <li class="bill-item">
+                                    <span data-i18n="bill_car">Базовая стоимость автомобиля</span>
+                                    <span class="bill-item-value" id="billCarPrice">300,000,000 UZS</span>
+                                </li>
+                                <li class="bill-item">
+                                    <span data-i18n="bill_wheels">Легкосплавные диски</span>
+                                    <span class="bill-item-value" id="billWheelsPrice">0 UZS</span>
+                                </li>
+                                <li class="bill-item">
+                                    <span data-i18n="bill_kit">Карбоновый аэродинамический обвес</span>
+                                    <span class="bill-item-value" id="billKitPrice">0 UZS</span>
+                                </li>
+                                <li class="bill-item">
+                                    <span data-i18n="bill_tint">Премиальная тонировка стекол</span>
+                                    <span class="bill-item-value" id="billTintPrice">0 UZS</span>
+                                </li>
+                            </ul>
+                            <div class="bill-total">
+                                <span class="bill-total-label" data-i18n="bill_total">Итоговая смета:</span>
+                                <div class="bill-total-price">
+                                    <div class="bill-total-price-main" id="billTotalMain">300,000,000 UZS</div>
+                                    <div class="bill-total-price-sub" id="billTotalSub">$23,600 / 171,400 CNY</div>
+                                </div>
+                            </div>
+                            <button class="btn btn-primary" onclick="orderCustomBuild()" style="width: 100%; margin-top:20px;" data-i18n="submit_build_btn">Отправить спецификацию менеджеру</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 3: SPARE PARTS CATALOG -->
+    <section class="catalog-section" id="catalog">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge" data-i18n="catalog_badge">Склад в Ташкенте</span>
+                <h2 class="section-title" data-i18n="catalog_title">Каталог автозапчастей</h2>
+                <div class="ornament-divider">
+                    <span></span>
+                    <svg class="ornament-star" viewBox="0 0 100 100">
+                        <path d="M 50 2 L 64 36 L 98 50 L 64 64 L 50 98 L 36 64 L 2 50 L 36 36 Z"/>
+                    </svg>
+                    <span></span>
+                </div>
+                <p class="section-subtitle" data-i18n="catalog_subtitle">В наличии на складе в Сергели. Быстрый поиск и заказ оригинальных деталей кузова, оптики и стекол.</p>
+            </div>
+
+            <!-- Search and Filter Row -->
+            <div class="catalog-search-row">
+                <div class="search-input-wrap">
+                    <i class="bx bx-search"></i>
+                    <input type="text" class="search-input" id="catalogSearch" oninput="searchCatalog()" placeholder="Поиск детали по названию или коду...">
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    <button class="filter-chip active" onclick="filterCatalogBrand('all', this)" data-i18n="filter_all">Все</button>
+                    <button class="filter-chip" onclick="filterCatalogBrand('BYD', this)">BYD</button>
+                    <button class="filter-chip" onclick="filterCatalogBrand('Geely', this)">Geely</button>
+                    <button class="filter-chip" onclick="filterCatalogBrand('Zeekr', this)">Zeekr</button>
+                    <button class="filter-chip" onclick="filterCatalogBrand('Chery', this)">Chery</button>
+                </div>
+            </div>
+
+            <!-- Parts Grid -->
+            <div class="catalog-grid" id="catalogGrid">
+                <!-- Dynamically populated -->
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 4: ROUTE MAP & SHIPPING LOGISTICS -->
+    <section class="map-section" id="map">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge" data-i18n="logistics_badge">Логистика Silk Road</span>
+                <h2 class="section-title" data-i18n="logistics_title">Мониторинг Пути Автомобилей</h2>
+                <div class="ornament-divider">
+                    <span></span>
+                    <svg class="ornament-star" viewBox="0 0 100 100">
+                        <path d="M 50 2 L 64 36 L 98 50 L 64 64 L 50 98 L 36 64 L 2 50 L 36 36 Z"/>
+                    </svg>
+                    <span></span>
+                </div>
+                <p class="section-subtitle" data-i18n="logistics_subtitle">Наглядная интерактивная карта следования партий автомобилей и запчастей из Китая в Узбекистан.</p>
+            </div>
+
+            <div class="map-layout">
+                <!-- Interactive SVG Map -->
+                <div class="map-visualizer card-3d">
+                    <svg viewBox="0 0 600 320" width="100%" class="map-svg-wrap" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Simulated topography lines -->
+                        <path d="M 20 60 Q 150 40 300 80 T 580 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1.5"/>
+                        <path d="M 10 180 Q 180 140 350 210 T 590 190" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1.5"/>
+                        
+                        <!-- Country Borders indicators -->
+                        <path d="M 320 20 L 320 300" stroke="rgba(255, 255, 255, 0.05)" stroke-width="2" stroke-dasharray="5 5" fill="none"/>
+                        <text x="270" y="30" fill="rgba(255,255,255,0.3)" font-family="var(--font-header)" font-size="8" font-weight="700">KAZAKHSTAN</text>
+                        <text x="350" y="30" fill="rgba(255,255,255,0.3)" font-family="var(--font-header)" font-size="8" font-weight="700">CHINA</text>
+                        <text x="70" y="300" fill="rgba(255,255,255,0.3)" font-family="var(--font-header)" font-size="8" font-weight="700">UZBEKISTAN</text>
+                        
+                        <!-- Route Line -->
+                        <path id="cargoRoute" d="M 500 230 L 400 160 L 320 120 L 260 125 L 140 180 L 80 220" class="map-route-line"/>
+                        
+                        <!-- Nodes -->
+                        <!-- Node 1: Xi'an (China) -->
+                        <g transform="translate(500, 230)">
+                            <circle r="12" class="map-node-pulse"/>
+                            <circle r="5" class="map-node" onclick="triggerMapTerminal('xian')"/>
+                        </g>
+                        
+                        <!-- Node 2: Urumqi (China) -->
+                        <g transform="translate(400, 160)">
+                            <circle r="5" class="map-node" onclick="triggerMapTerminal('urumqi')"/>
+                        </g>
+
+                        <!-- Node 3: Khorgos border gate -->
+                        <g transform="translate(320, 120)">
+                            <circle r="10" class="map-node-pulse" style="fill:var(--emerald-bright); animation-delay: 1s;"/>
+                            <circle r="6" class="map-node" style="stroke:var(--emerald-bright);" onclick="triggerMapTerminal('khorgos')"/>
+                        </g>
+
+                        <!-- Node 4: Almaty (Kazakhstan) -->
+                        <g transform="translate(260, 125)">
+                            <circle r="5" class="map-node" onclick="triggerMapTerminal('almaty')"/>
+                        </g>
+
+                        <!-- Node 5: Tashkent customs (Sergeli warehouse) -->
+                        <g transform="translate(140, 180)">
+                            <circle r="12" class="map-node-pulse" style="fill:#00f2fe; animation-delay: 0.5s;"/>
+                            <circle r="7" class="map-node" style="stroke:#00f2fe;" onclick="triggerMapTerminal('tashkent')"/>
+                        </g>
+
+                        <!-- Node 6: Samarkand hub -->
+                        <g transform="translate(80, 220)">
+                            <circle r="5" class="map-node" onclick="triggerMapTerminal('samarkand')"/>
+                        </g>
+
+                        <!-- Truck moving cargo -->
+                        <g id="truckIcon" transform="translate(0,0)">
+                            <circle r="8" fill="var(--emerald-bright)" filter="blur(2px)"/>
+                            <polygon points="-5,-4 5,-4 7,0 5,4 -5,4" fill="var(--gold-neon)" class="map-truck-icon"/>
+                            <circle cx="-2" cy="4" r="2.5" fill="#fff"/>
+                            <circle cx="3" cy="4" r="2.5" fill="#fff"/>
+                        </g>
+
+                        <!-- Node labels -->
+                        <text x="515" y="235" fill="#fff" font-family="var(--font-header)" font-size="8" font-weight="700">Xi'an</text>
+                        <text x="412" y="157" fill="#fff" font-family="var(--font-header)" font-size="8" font-weight="700">Urumqi</text>
+                        <text x="312" y="110" fill="#fff" font-family="var(--font-header)" font-size="8" font-weight="700">Khorgos</text>
+                        <text x="250" y="140" fill="#fff" font-family="var(--font-header)" font-size="8" font-weight="700">Almaty</text>
+                        <text x="135" y="170" fill="#00f2fe" font-family="var(--font-header)" font-size="8" font-weight="800">Tashkent Hub</text>
+                        <text x="65" y="235" fill="#fff" font-family="var(--font-header)" font-size="8" font-weight="700">Samarkand</text>
+                    </svg>
+                </div>
+
+                <!-- Logistics Control Center -->
+                <div class="map-panel card-3d">
+                    <div class="map-panel-title">
+                        <i class="bx bxs-traffic-barrier"></i>
+                        <span data-i18n="logistics_live">Live Отслеживание Грузов</span>
+                    </div>
+                    <div class="terminal-console" id="logConsole">
+                        <!-- Populated by JS loop -->
+                    </div>
+                    
+                    <div class="stats-dashboard">
+                        <div class="dashboard-card">
+                            <span class="dashboard-card-val">42</span>
+                            <span class="dashboard-card-label" data-i18n="log_transit_cars">Машин в пути</span>
+                        </div>
+                        <div class="dashboard-card">
+                            <span class="dashboard-card-val" style="color:var(--emerald-bright);">8.2 дн</span>
+                            <span class="dashboard-card-label" data-i18n="log_avg_delivery">Средний срок</span>
+                        </div>
+                        <div class="dashboard-card">
+                            <span class="dashboard-card-val" style="color:var(--gold-neon);">99.9%</span>
+                            <span class="dashboard-card-label" data-i18n="log_safety">Сохранность</span>
+                        </div>
+                        <div class="dashboard-card">
+                            <span class="dashboard-card-val">15 400</span>
+                            <span class="dashboard-card-label" data-i18n="log_parts">Запчастей в базе</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 5: SERVICES -->
+    <section class="services-section" id="services">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge" data-i18n="services_badge">Профессиональный Сервис</span>
+                <h2 class="section-title" data-i18n="services_title">Наши услуги кузовного сервиса</h2>
+                <div class="ornament-divider">
+                    <span></span>
+                    <svg class="ornament-star" viewBox="0 0 100 100">
+                        <path d="M 50 2 L 64 36 L 98 50 L 64 64 L 50 98 L 36 64 L 2 50 L 36 36 Z"/>
+                    </svg>
+                    <span></span>
+                </div>
+                <p class="section-subtitle" data-i18n="services_subtitle">Обеспечиваем полный цикл от профессионального импорта кузовных элементов до их установки под ключ.</p>
+            </div>
+
+            <div class="services-grid">
+                <div class="service-card card-3d">
+                    <div class="service-icon"><i class="bx bx-barcode-reader"></i></div>
+                    <h3 class="service-title" data-i18n="srv_vin_title">Подбор по VIN коду</h3>
+                    <p class="service-desc" data-i18n="srv_vin_desc">100% сверка геометрии креплений деталей по заводским электронным базам производителей Китая.</p>
+                    <div class="service-price" id="priceSrv1" data-i18n="srv_free">Бесплатно</div>
+                </div>
+
+                <div class="service-card card-3d">
+                    <div class="service-icon"><i class="bx bx-color-fill"></i></div>
+                    <h3 class="service-title" data-i18n="srv_paint_title">Подбор краски и покраска</h3>
+                    <p class="service-desc" data-i18n="srv_paint_desc">Компьютерный подбор цвета краски и окраска кузовных запчастей в профессиональной итальянской камере.</p>
+                    <div class="service-price" id="priceSrv2">от 1,200,000 UZS</div>
+                </div>
+
+                <div class="service-card card-3d">
+                    <div class="service-icon"><i class="bx bx-wrench"></i></div>
+                    <h3 class="service-title" data-i18n="srv_install_title">Установка и калибровка</h3>
+                    <p class="service-desc" data-i18n="srv_install_desc">Монтаж кузовных деталей с выставлением идеальных зазоров и калибровкой радарных датчиков и камер.</p>
+                    <div class="service-price" id="priceSrv3">от 500,000 UZS</div>
+                </div>
+
+                <div class="service-card card-3d">
+                    <div class="service-icon"><i class="bx bx-paper-plane"></i></div>
+                    <h3 class="service-title" data-i18n="srv_delivery_title">Доставка во все вилояты</h3>
+                    <p class="service-desc" data-i18n="srv_delivery_desc">Бережная доставка деталей по всему Узбекистану в жесткой деревянной обрешетке для гарантии сохранности.</p>
+                    <div class="service-price" id="priceSrv4">от 100,000 UZS</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- SECTION 6: LEAD FORM -->
+    <section class="order-section" id="order">
+        <div class="container">
+            <div class="order-form-container card-3d">
+                <div class="order-grid">
+                    <!-- Info Column -->
+                    <div class="order-info-col">
+                        <div>
+                            <h2 class="form-title glow-text" style="font-family:var(--font-header); font-size: 1.8rem; font-weight: 900; text-transform:uppercase;" data-i18n="form_title">Заявка на подбор</h2>
+                            <p style="color:var(--text-secondary); font-size:0.9rem; margin-top:15px;" data-i18n="form_subtitle">Оставьте ваши контактные данные, и специалист свяжется с вами в течение 10 минут в Telegram или по телефону.</p>
+                        </div>
+                        
+                        <ul class="order-benefit-list">
+                            <li class="order-benefit-item">
+                                <i class="bx bx-message-square-check"></i>
+                                <div>
+                                    <h4 data-i18n="benefit_1">Гарантия Совпадения</h4>
+                                    <p data-i18n="benefit_1_desc">Все детали точно садятся в заводские пазы вашего электромобиля.</p>
+                                </div>
+                            </li>
+                            <li class="order-benefit-item">
+                                <i class="bx bx-credit-card-front"></i>
+                                <div>
+                                    <h4 data-i18n="benefit_2">Удобный расчет</h4>
+                                    <p data-i18n="benefit_2_desc">Принимаем к оплате UzCard, Humo, наличные средства и безналичные переводы.</p>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div style="font-size:0.8rem; color:var(--text-secondary);">
+                            <span data-i18n="form_phone_lbl">Телефон горячей линии:</span>
+                            <a href="tel:+998712003535" style="display:block; font-size:1.1rem; color:var(--gold-neon); font-weight:700; text-decoration:none; margin-top:5px;">+998 (71) 200-35-35</a>
+                        </div>
+                    </div>
+
+                    <!-- Fields Column -->
+                    <div style="position:relative;">
+                        <form id="orderForm" onsubmit="submitForm(event)">
+                            <div class="form-fields">
+                                <div class="form-group">
+                                    <input type="text" class="form-input" id="userName" placeholder=" " required>
+                                    <label class="form-label" data-i18n="lbl_name">Ваше имя</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="tel" class="form-input" id="userPhone" value="+998 " placeholder=" " required>
+                                    <label class="form-label" data-i18n="lbl_phone">Номер телефона</label>
+                                </div>
+                                <div class="form-group">
+                                    <input type="text" class="form-input" id="userCar" placeholder=" ">
+                                    <label class="form-label" data-i18n="lbl_car">Модель автомобиля</label>
+                                </div>
+                                <div class="form-group">
+                                    <textarea class="form-input" id="userPart" rows="3" placeholder=" " style="resize:none;"></textarea>
+                                    <label class="form-label" data-i18n="lbl_specs">Список запчастей / спецификация сборки</label>
+                                </div>
+                                <button type="submit" class="btn btn-primary" style="width: 100%;" data-i18n="btn_send">Отправить заявку</button>
+                            </div>
+                        </form>
+
+                        <!-- Success state -->
+                        <div class="success-overlay" id="successOverlay">
+                            <div class="success-icon"><i class="bx bx-check"></i></div>
+                            <h3 style="font-family:var(--font-header); font-size:1.5rem; font-weight:900;" data-i18n="success_title">Спасибо, заявка принята!</h3>
+                            <p style="color:var(--text-secondary); margin:15px 0 25px 0;" data-i18n="success_desc">Ваш запрос сохранен. Наш менеджер уже связывается с вами.</p>
+                            <button class="btn btn-secondary" onclick="closeSuccess()" data-i18n="btn_back">Вернуться</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+        <div class="container footer-grid">
+            <div class="footer-logo-col">
+                <a href="#" class="logo">
+                    <i class="bx bxs-car-mechanic"></i>AUTO3D<span>//UZ</span>
+                </a>
+                <p data-i18n="footer_about">Профессиональный подбор кузовных панелей и сборка тюнинг-комплектов из Китая. Собственный хаб в Ташкенте.</p>
+                <div class="social-links">
+                    <a href="https://t.me/auto3d_uz" class="social-link"><i class="bx bxl-telegram"></i></a>
+                    <a href="#" class="social-link"><i class="bx bxl-instagram"></i></a>
+                    <a href="#" class="social-link"><i class="bx bxl-youtube"></i></a>
+                </div>
+            </div>
+
+            <div>
+                <h4 class="footer-title" data-i18n="footer_sections">Разделы</h4>
+                <ul class="footer-links">
+                    <li><a href="#hero" data-i18n="nav_home">Главная</a></li>
+                    <li><a href="#cars" data-i18n="nav_cars">Автомобили</a></li>
+                    <li><a href="#configurator" data-i18n="nav_configurator">3D Конструктор</a></li>
+                    <li><a href="#catalog" data-i18n="nav_catalog">Запчасти</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title" data-i18n="footer_models">Модели</h4>
+                <ul class="footer-links">
+                    <li><a href="#cars" onclick="filterCars('BYD')">BYD Song Plus</a></li>
+                    <li><a href="#cars" onclick="filterCars('Geely')">Geely Monjaro</a></li>
+                    <li><a href="#cars" onclick="filterCars('Zeekr')">Zeekr 001</a></li>
+                    <li><a href="#cars" onclick="filterCars('Li Auto')">Li Auto L9</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="footer-title" data-i18n="footer_contacts">Контакты</h4>
+                <div class="footer-address">
+                    <div class="address-item">
+                        <i class="bx bx-map-pin"></i>
+                        <span data-i18n="footer_address_val">г. Ташкент, Сергелийский район, ТКАД, д. 45 (Сергелийский авторынок)</span>
+                    </div>
+                    <div class="address-item">
+                        <i class="bx bx-envelope"></i>
+                        <span>info@auto3d.uz</span>
+                    </div>
+                    <div class="address-item">
+                        <i class="bx bx-phone"></i>
+                        <span>+998 (71) 200-35-35</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container footer-bottom">
+            <p>&copy; 2026 AUTO3D UZBEKISTAN. O'zbekistonda ishlab chiqarilgan. Barcha huquqlar himoyalangan.</p>
+            <div style="display:flex; gap:20px; align-items:center;">
+                <button class="admin-trigger" onclick="openAdmin()" data-i18n="admin_panel_btn">Админ Панель</button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ADMIN PANEL PORTAL MODAL -->
+    <div class="admin-modal" id="adminModal">
+        <div class="admin-box">
+            <button class="admin-close" onclick="closeAdmin()"><i class="bx bx-x"></i></button>
+            <h2 style="font-family:var(--font-header); text-transform:uppercase; margin-bottom:20px; display:flex; align-items:center; gap:10px;">
+                <i class="bx bx-cog" style="color:var(--gold-neon);"></i> <span data-i18n="admin_title">Панель управления AUTO3D</span>
+            </h2>
+            
+            <!-- Lock Screen State -->
+            <div id="adminLockScreen">
+                <p style="color:var(--text-secondary); margin-bottom:20px;" data-i18n="admin_enter_code">Введите секретный администраторский код доступа для редактирования:</p>
+                <div class="form-group" style="margin-bottom:20px;">
+                    <input type="password" class="form-input" id="adminCodeField" placeholder=" " style="max-width:300px;">
+                    <label class="form-label" data-i18n="lbl_code">Код доступа</label>
+                </div>
+                <button class="btn btn-primary" onclick="verifyAdminCode()" data-i18n="btn_login">Войти в панель</button>
+                <p style="font-size:0.75rem; color:red; margin-top:10px; display:none;" id="adminErr" data-i18n="admin_invalid">Неверный код доступа!</p>
+            </div>
+
+            <!-- Logged In Admin Panel Console -->
+            <div id="adminConsole" style="display:none;">
+                <div class="admin-tabs">
+                    <button class="admin-tab-btn active" onclick="switchAdminTab('admin-cars', this)" data-i18n="adm_tab_cars">Управление Автомобилями</button>
+                    <button class="admin-tab-btn" onclick="switchAdminTab('admin-parts', this)" data-i18n="adm_tab_parts">Управление Запчастями</button>
+                </div>
+
+                <!-- Admin Tab: Cars -->
+                <div class="admin-pane active" id="admin-cars">
+                    <div style="margin-bottom:20px;">
+                        <label class="option-label" data-i18n="adm_select_car">Выберите автомобиль для редактирования:</label>
+                        <select class="form-input" id="adminCarSelect" onchange="loadAdminCarData()" style="margin-top:8px;">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminCarImgUrl" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_car_img">URL Фотографии Автомобиля</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminCarDesc" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_car_desc">Краткое описание</label>
+                        </div>
+                    </div>
+
+                    <h4 style="margin-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.05); padding-bottom:5px; color:var(--gold-neon);" data-i18n="adm_trim_settings">Настройки комплектаций (Базовая & Топ)</h4>
+                    <div class="admin-form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminTrim0PriceUzs" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_trim0_price">Цена Базовой (UZS)</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminTrim1PriceUzs" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_trim1_price">Цена Топ (UZS)</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveAdminCarChanges()" data-i18n="adm_save">Сохранить изменения автомобиля</button>
+                </div>
+
+                <!-- Admin Tab: Parts -->
+                <div class="admin-pane" id="admin-parts">
+                    <div style="margin-bottom:20px;">
+                        <label class="option-label" data-i18n="adm_select_part">Выберите деталь для редактирования:</label>
+                        <select class="form-input" id="adminPartSelect" onchange="loadAdminPartData()" style="margin-top:8px;">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="admin-form-row">
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminPartImgUrl" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_part_img">URL Фотографии Детали</label>
+                        </div>
+                        <div class="form-group">
+                            <input type="text" class="form-input" id="adminPartPriceUzs" placeholder=" ">
+                            <label class="form-label" data-i18n="adm_part_price">Цена детали (UZS)</label>
+                        </div>
+                    </div>
+
+                    <button class="btn btn-primary" onclick="saveAdminPartChanges()" data-i18n="adm_save">Сохранить изменения детали</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script>
+        /* 1. STATE & DATABASES */
+        let currentLang = localStorage.getItem('auto3d_lang') || 'uz';
+        let currentCurrency = localStorage.getItem('auto3d_currency') || 'UZS';
+        
+        // Exchange rates relative to UZS (hardcoded for stability)
+        const exchangeRates = {
+            UZS: 1,
+            USD: 12700,
+            CNY: 1750
+        };
+
+        const defaultCarsDb = [
+            {
+                id: 'byd-song',
+                brand: 'BYD',
+                name: 'Song Plus',
+                desc: {
+                    uz: 'O\'zbekistondagi eng mashhur yo\'ltanlamas. Qulay, tejamkor va ishonchli oilaviy krossover.',
+                    ru: 'Самый популярный кроссовер в Узбекистане. Комфортный, экономичный и надежный семейный внедорожник.',
+                    en: 'The most popular SUV in Uzbekistan. Comfortable, economical, and reliable family crossover.'
+                },
+                image: 'https://images.unsplash.com/photo-1698292850937-2936746ef7d3?auto=format&fit=crop&q=80&w=800',
+                activeTrimIdx: 0,
+                trims: [
+                    {
+                        name: 'Champion Edition',
+                        priceUzs: 298000000,
+                        specs: {
+                            battery: '71.7 kWh (LFP)',
+                            power: '218 hp',
+                            range: '505 km (CLTC)',
+                            accel: '8.3 s (0-100)'
+                        }
+                    },
+                    {
+                        name: 'Flagship AWD',
+                        priceUzs: 356000000,
+                        specs: {
+                            battery: '87.0 kWh (LFP)',
+                            power: '312 hp',
+                            range: '605 km (CLTC)',
+                            accel: '6.9 s (0-100)'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'geely-monjaro',
+                brand: 'Geely',
+                name: 'Monjaro',
+                desc: {
+                    uz: 'Premium shassi ustiga qurilgan, hashamatli va texnologik AWD yo\'ltanlamas avtomobili.',
+                    ru: 'Полноприводный премиальный внедорожник, сочетающий шведскую безопасность и китайский хай-тек.',
+                    en: 'Premium AWD SUV combining Swedish safety standards with advanced Chinese technology.'
+                },
+                image: 'https://images.unsplash.com/photo-1707077464010-09315e9e0486?auto=format&fit=crop&q=80&w=800',
+                activeTrimIdx: 0,
+                trims: [
+                    {
+                        name: 'Luxury 4WD',
+                        priceUzs: 394000000,
+                        specs: {
+                            battery: '2.0T Petrol 8AT',
+                            power: '238 hp',
+                            range: 'AWD System',
+                            accel: '7.7 s (0-100)'
+                        }
+                    },
+                    {
+                        name: 'Exclusive Emerald',
+                        priceUzs: 438000000,
+                        specs: {
+                            battery: '2.0T Petrol 8AT',
+                            power: '238 hp',
+                            range: 'AWD + HUD + Sound',
+                            accel: '7.7 s (0-100)'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'zeekr-001',
+                brand: 'Zeekr',
+                name: '001 Shooting Brake',
+                desc: {
+                    uz: 'Dinamik haydashni sevuvchilar uchun yaratilgan sport shaklidagi premium elektro-liftbek.',
+                    ru: 'Роскошный электрический лифтбек. Спортивный характер, пневмоподвеска и выдающаяся динамика.',
+                    en: 'Luxurious electric shooting brake. Sports handling, air suspension, and extreme performance.'
+                },
+                image: 'https://images.unsplash.com/photo-1699039641740-424a10fb176e?auto=format&fit=crop&q=80&w=800',
+                activeTrimIdx: 0,
+                trims: [
+                    {
+                        name: 'WE 100kWh',
+                        priceUzs: 533000000,
+                        specs: {
+                            battery: '100 kWh NCM',
+                            power: '422 hp (RWD)',
+                            range: '750 km (CLTC)',
+                            accel: '5.9 s (0-100)'
+                        }
+                    },
+                    {
+                        name: 'YOU Dual Motor',
+                        priceUzs: 685000000,
+                        specs: {
+                            battery: '100 kWh NCM',
+                            power: '789 hp (AWD)',
+                            range: '650 km (CLTC)',
+                            accel: '3.3 s (0-100)'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'li-l9',
+                brand: 'Li Auto',
+                name: 'L9 Ultra',
+                desc: {
+                    uz: '6 kishilik oilaviy lyuks krossover. Ikki kamerali pnevmatik osma tizim va maksimal darajadagi komford.',
+                    ru: 'Полноразмерный роскошный семейный кроссовер. Пневмоподвеска, массаж всех сидений, холодильник.',
+                    en: 'Full-size luxury family SUV. Advanced air suspension, massage seats, dual displays, and onboard fridge.'
+                },
+                image: 'https://images.unsplash.com/photo-1718116568112-70b533e4f3a7?auto=format&fit=crop&q=80&w=800',
+                activeTrimIdx: 0,
+                trims: [
+                    {
+                        name: 'L9 Pro (EREV)',
+                        priceUzs: 749000000,
+                        specs: {
+                            battery: '44.5 kWh + 1.5T Ext.',
+                            power: '449 hp (AWD)',
+                            range: '1315 km (Combined)',
+                            accel: '5.3 s (0-100)'
+                        }
+                    },
+                    {
+                        name: 'L9 Ultra (LiDAR)',
+                        priceUzs: 838000000,
+                        specs: {
+                            battery: '52.3 kWh + 1.5T Ext.',
+                            power: '449 hp (AWD)',
+                            range: '1412 km (Combined)',
+                            accel: '5.3 s (0-100)'
+                        }
+                    }
+                ]
+            },
+            {
+                id: 'byd-han',
+                brand: 'BYD',
+                name: 'Han EV',
+                desc: {
+                    uz: 'Premium toifadagi elektrosedan. Tashqi ko\'rinishi va ichki hashamati bilan barchani maftun etadi.',
+                    ru: 'Роскошный флагманский электроседан. Изысканный салон, спортивные тормоза Brembo и престиж.',
+                    en: 'Luxury flagship electric sedan. Exquisite leather interior, Brembo braking system, and prestige.'
+                },
+                image: 'https://images.unsplash.com/photo-1712574041764-77a83d71239c?auto=format&fit=crop&q=80&w=800',
+                activeTrimIdx: 0,
+                trims: [
+                    {
+                        name: 'Flagship FWD',
+                        priceUzs: 445000000,
+                        specs: {
+                            battery: '72.0 kWh (LFP)',
+                            power: '245 hp',
+                            range: '605 km (CLTC)',
+                            accel: '7.9 s (0-100)'
+                        }
+                    },
+                    {
+                        name: 'Noble 4WD AWD',
+                        priceUzs: 527000000,
+                        specs: {
+                            battery: '85.4 kWh (LFP)',
+                            power: '517 hp',
+                            range: '715 km (CLTC)',
+                            accel: '3.9 s (0-100)'
+                        }
+                    }
+                ]
+            }
+        ];
+
+        const defaultPartsDb = {
+            bumper_f: {
+                code: 'BUMP-F-SP',
+                title: {
+                    uz: 'Old bamper',
+                    ru: 'Передний бампер',
+                    en: 'Front Bumper'
+                },
+                desc: {
+                    uz: 'Polipropilendan quyilgan original oldgi bamper. Bo\'yashga tayyorlangan.',
+                    ru: 'Оригинальный передний бампер из высокопрочного полипропилена под покраску.',
+                    en: 'Original front bumper made of high-strength polypropylene, ready for painting.'
+                },
+                priceUzs: 2800000,
+                image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=600'
+            },
+            headlight: {
+                code: 'LED-HEAD-R',
+                title: {
+                    uz: 'Svetodiod fara',
+                    ru: 'Матричная LED Фара',
+                    en: 'Matrix LED Headlamp'
+                },
+                desc: {
+                    uz: 'Intellektual LED matritsali fara. Mukammal yorug\'lik va uzoq umr ko\'rish kafolati.',
+                    ru: 'Умная матричная светодиодная фара в сборе. Оригинальная оптика высшего качества.',
+                    en: 'Smart matrix LED headlight assembly. High quality original optical element.'
+                },
+                priceUzs: 7000000,
+                image: 'https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&q=80&w=600'
+            },
+            hood: {
+                code: 'HOOD-OEM-M',
+                title: {
+                    uz: 'Kapot',
+                    ru: 'Оригинальный капот',
+                    en: 'Original Metal Hood'
+                },
+                desc: {
+                    uz: 'Mustahkam po\'lat qotishmasidan qilingan kapot. Ideal o\'lcham va oson o\'rnatish.',
+                    ru: 'Металлический оригинальный капот. Четкие заводские посадочные зазоры.',
+                    en: 'OEM quality metal hood panel. Guarantees perfect factory gap lines.'
+                },
+                priceUzs: 3800000,
+                image: 'https://images.unsplash.com/photo-1507136566006-cfc505b114fc?auto=format&fit=crop&q=80&w=600'
+            },
+            grille: {
+                code: 'GRIL-MAIN',
+                title: {
+                    uz: 'Radiator panjarasi',
+                    ru: 'Решетка радиатора',
+                    en: 'Radiator Grille'
+                },
+                desc: {
+                    uz: 'Hromlangan radiator panjarasi. Havo oqimini yaxshilaydi va go\'zallik beradi.',
+                    ru: 'Хромированная радиаторная решетка. Эстетика и защита радиаторов охлаждения.',
+                    en: 'Chrome styling radiator grille. Enhances styling and safeguards radiators.'
+                },
+                priceUzs: 1900000,
+                image: 'https://images.unsplash.com/photo-1552519507-da3b142c6e3d?auto=format&fit=crop&q=80&w=600'
+            },
+            fender: {
+                code: 'FEND-FRONT-L',
+                title: {
+                    uz: 'Old qanot',
+                    ru: 'Крыло переднее',
+                    en: 'Front Fender'
+                },
+                desc: {
+                    uz: 'Temirdan qilingan oldgi qanot. Zangga qarshi ishlov berilgan.',
+                    ru: 'Крыло переднее металлическое с антикоррозийной обработкой.',
+                    en: 'Front metal fender panel pre-treated with anti-rust primers.'
+                },
+                priceUzs: 1400000,
+                image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600'
+            },
+            mirror: {
+                code: 'MIR-ELECT-R',
+                title: {
+                    uz: 'Yon ko\'zgu yig\'masi',
+                    ru: 'Зеркало боковое в сборе',
+                    en: 'Side View Mirror Assembly'
+                },
+                desc: {
+                    uz: 'Avtomatik buklanuvchi yon ko\'zgu, isitgich va burilish datchigi bilan.',
+                    ru: 'Боковое зеркало заднего вида с обогревом, электроприводом и подсветкой слепых зон.',
+                    en: 'Side mirror assembly featuring blind spot assist, folding, and heating.'
+                },
+                priceUzs: 1650000,
+                image: 'https://images.unsplash.com/photo-1606577924006-27d39b132ae2?auto=format&fit=crop&q=80&w=600'
+            },
+            door: {
+                code: 'DOOR-FL-OEM',
+                title: {
+                    uz: 'Old chap eshik',
+                    ru: 'Дверь передняя левая',
+                    en: 'Front Left Door'
+                },
+                desc: {
+                    uz: 'Original zavod eshik paneli. Shovqindan himoyalovchi ichki qatlamga ega.',
+                    ru: 'Оригинальный каркас передней двери с заводским антикоррозийным грунтом.',
+                    en: 'Factory original front door panel primed and ready for assembly.'
+                },
+                priceUzs: 3400000,
+                image: 'https://images.unsplash.com/photo-1589134789093-c4440a7cf8e4?auto=format&fit=crop&q=80&w=600'
+            },
+            bumper_r: {
+                code: 'BUMP-REAR',
+                title: {
+                    uz: 'Orqa bamper',
+                    ru: 'Задний бампер',
+                    en: 'Rear Bumper'
+                },
+                desc: {
+                    uz: 'Orqa bamper to\'liq jamlanma. LED reflektorlar uchun o\'rnatish joyiga ega.',
+                    ru: 'Задний бампер в сборе с диффузором и технологическими отверстиями под датчики.',
+                    en: 'Rear bumper assembly complete with integrated bottom diffuser.'
+                },
+                priceUzs: 2400000,
+                image: 'https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?auto=format&fit=crop&q=80&w=600'
+            },
+            trunk: {
+                code: 'TRUNK-LID-E',
+                title: {
+                    uz: 'Yukxona qopqog\'i',
+                    ru: 'Крышка багажника',
+                    en: 'Rear Trunk Lid'
+                },
+                desc: {
+                    uz: 'Yukxona qopqog\'i eshigi. Elektr yurgizgich o\'rnatishga moslashtirilgan.',
+                    ru: 'Задняя дверь багажника. Поддержка штатных сервоприводов подъема.',
+                    en: 'Trunk liftgate panel built for electric lift motors.'
+                },
+                priceUzs: 4000000,
+                image: 'https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&q=80&w=600'
+            }
+        };
+
+        // Load Database from LocalStorage if edits were made
+        let carsDb = JSON.parse(localStorage.getItem('auto3d_cars')) || defaultCarsDb;
+        let partsDb = JSON.parse(localStorage.getItem('auto3d_parts')) || defaultPartsDb;
+
+        /* 2. DICTIONARY (TRANSLATIONS) */
+        const translations = {
+            uz: {
+                nav_home: "Asosiy",
+                nav_cars: "Avtomobillar",
+                nav_configurator: "3D Konstruktor",
+                nav_catalog: "Ehtiyot qismlar",
+                nav_logistics: "Etkazib berish",
+                nav_services: "Xizmatlar",
+                hero_badge: "O'zbekiston Milliy Uslubida",
+                hero_title_1: "Premium Kuzov Qismlari",
+                hero_title_2: "Zamonaviy Dizaynda",
+                hero_subtitle: "Eng sifatli Xitoy elektromobillari ehtiyot qismlari importi. Avtomobilingizni 3D o'lchamda tyuning qiling va Sergelidagi ombordan tezda qabul qiling.",
+                hero_btn_config: "Tyuning Konstruktori",
+                hero_btn_catalog: "Qismlar Katalogi",
+                hero_stat_parts: "Detallar Omborda",
+                hero_stat_days: "Kun Yetkazish",
+                hero_stat_fits: "Mukammal Zazor",
+                hero_3d_mode: "3D Hologramma",
+                hero_3d_spin: "Aylantirish",
+                cars_badge: "Avtoko'rgazma",
+                cars_title: "Xitoy elektromobillari",
+                cars_subtitle: "To'g'ridan-to'g'ri ishlab chiqaruvchi zavodlardan eng yangi avlod mashinalari.",
+                filter_all: "Barchasi",
+                config_badge: "3D Konstruktor",
+                config_title: "Avto Yig'ish Va Tyuning",
+                config_subtitle: "Hotspot nuqtalar orqali original qismlarni tekshiring yoki o'zingizning orzuingizdagi 3D tyuning loyihangizni quring.",
+                config_tab_showroom: "Qismlar Showroom",
+                config_tab_builder: "3D Tyuning Сonstructor",
+                part_instock: "Toshkent omborida mavjud",
+                price: "Narxi",
+                order_btn: "Buyurtma Berish",
+                tuning_model: "Avtomobil Modelini Tanlang",
+                tuning_color: "Kuzov Rangi",
+                tuning_wheels: "G'ildirak Disklarini Tanlash",
+                wheels_r18: "R18 Zavod OEM Disklari",
+                wheels_free: "Jamlanmada bor",
+                wheels_r19: "R19 Qora Sport Disklari",
+                wheels_r20: "R20 O'zbek Gold Oltin Disklari",
+                tuning_kit: "Aerodinamik Bumper Obvesi",
+                kit_oem: "Zavodskoy (OEM)",
+                kit_free: "Jamlanmada bor",
+                kit_sport: "Carbon Sport Obves Jamlanmasi",
+                tuning_tint: "Oynalarni Tonirovka Qilish",
+                tint_none: "Tonirovkasiz",
+                tint_free: "Jamlanmada bor",
+                tint_30: "Orqa yon oynalar 30%",
+                tint_100: "Doiraviy Lumar 100% plyonka",
+                rotate_info: "Sichqoncha bilan aylantiring",
+                bill_title: "Avtomobil Yig'ish Smetasi",
+                bill_car: "Avtomobilning Baza Narxi",
+                submit_build_btn: "Loyihani Buyurtma Qilish",
+                catalog_badge: "Do'kon",
+                catalog_title: "Ehtiyot Qismlar Katalogi",
+                catalog_subtitle: "Zarur butlovchi va kuzov qismlari Toshkent shahrida tezkor yetkazish bilan.",
+                logistics_badge: "Logistika",
+                logistics_title: " Silk Road Marshrut Xaritasi",
+                logistics_subtitle: "Xitoydan (Sian) O'zbekistonga (Toshkent/Samarqand) yuklarning kelish jarayoni.",
+                logistics_live: "Jonli Kuzatuv Terminali",
+                log_transit_cars: "Yo'ldagi Mashinalar",
+                log_avg_delivery: "O'rtacha muddat",
+                log_safety: "Xavfsizlik darajasi",
+                log_parts: "Baza qismlari",
+                services_badge: "Professional Xizmatlar",
+                services_title: "Kuzov Servisimiz Xizmatlari",
+                services_subtitle: "Toshkent shahridagi ustaxonamizda o'rnatish kafolati va yuqori darajada xizmat ko'rsatish.",
+                srv_vin_title: "VIN bo'yicha aniq topish",
+                srv_vin_desc: "Xitoy elektron bazalari bo'yicha mos kelishini 100% tekshiramiz.",
+                srv_free: "Bepul xizmat",
+                srv_paint_title: "Kompyuterda rang tanlash va Bo'yash",
+                srv_paint_desc: "Italiya kameralarida barcha me'yorlarga mos ravishda qismlarni bo'yash xizmati.",
+                srv_install_title: "Kafolatli O'rnatish",
+                srv_install_desc: "Barcha zazorlarni zavod darajasida saqlagan holda montaj qilish.",
+                srv_delivery_title: "Viloyatlarga Yetkazish",
+                srv_delivery_desc: "Qadoqlangan yog'och qutilarda barcha viloyatlarga xavfsiz yetkazamiz.",
+                form_title: "Kuzov Bo'yicha So'rovnoma",
+                form_subtitle: "So'rov qoldiring va menejerimiz 10 daqiqa ichida siz bilan bog'lanib maslahat beradi.",
+                benefit_1: "Muhandislik Mosligi",
+                benefit_1_desc: "Har bir detal zavod ulanish nuqtalariga to'liq mos keladi.",
+                benefit_2: "Qulay To'lov Tizimi",
+                benefit_2_desc: "UzCard, Humo, Naqd yoki shartnoma bo'yicha o'tkazmalarni qabul qilamiz.",
+                form_phone_lbl: "Ishonch telefoni:",
+                lbl_name: "Ismingiz",
+                lbl_phone: "Telefon raqamingiz",
+                lbl_car: "Avto modeli",
+                lbl_specs: "Zarur ehtiyot qismi / loyiha tavsifi",
+                btn_send: "So'rovni Yuborish",
+                success_title: "Buyurtma qabul qilindi!",
+                success_desc: "So'rovingiz muvaffaqiyatli saqlandi. Mutaxassis tez orada siz bilan bog'lanadi.",
+                btn_back: "Orqaga",
+                footer_about: "Original kuzov detallari yetkazish va yig'ish platformasi. Toshkentdagi rasmiy diler.",
+                footer_sections: "Bo'limlar",
+                footer_models: "Mashhur Avtolar",
+                footer_contacts: "Aloqa Ma'lumotlari",
+                footer_address_val: "Toshkent sh., Sergeli tumani, THAY, 45-uy (Sergeli Avtobozori radosida)",
+                admin_panel_btn: "Admin Tizim",
+                admin_title: "AUTO3D Tizim Paneli",
+                admin_enter_code: "Tahrirlash rejimiga o'tish uchun kodni kiriting:",
+                lbl_code: "Kod",
+                btn_login: "Tizimga kirish",
+                admin_invalid: "Kod noto'g'ri!",
+                adm_tab_cars: "Avtomobillarni Tahrirlash",
+                adm_tab_parts: "Ehtiyot qismlarni Tahrirlash",
+                adm_select_car: "Avtomobilni tanlang:",
+                adm_car_img: "Rasm URL manzili",
+                adm_car_desc: "Tavsifi",
+                adm_trim_settings: "Komplektatsiyalar Narxlari",
+                adm_trim0_price: "Baza Narxi (UZS)",
+                adm_trim1_price: "Top Komplekt Narxi (UZS)",
+                adm_save: "Ma'lumotlarni saqlash",
+                adm_select_part: "Detalni tanlang:",
+                adm_part_img: "Detal Rasm URL",
+                adm_part_price: "Detal Narxi (UZS)"
+            },
+            ru: {
+                nav_home: "Главная",
+                nav_cars: "Автомобили",
+                nav_configurator: "3D Конструктор",
+                nav_catalog: "Запчасти",
+                nav_logistics: "Доставка",
+                nav_services: "Услуги",
+                hero_badge: "В узбекском стиле",
+                hero_title_1: "Премиальные детали",
+                hero_title_2: "В новом дизайне",
+                hero_subtitle: "Эксклюзивный импорт кузовных деталей из Китая в Узбекистан. Соберите автомобиль в 3D и заберите на складе в Сергели.",
+                hero_btn_config: "Конструктор тюнинга",
+                hero_btn_catalog: "Каталог деталей",
+                hero_stat_parts: "Деталей на складе",
+                hero_stat_days: "Дней доставки",
+                hero_stat_fits: "Идеальный зазор",
+                hero_3d_mode: "3D Голограмма",
+                hero_3d_spin: "Вращать",
+                cars_badge: "Автосалон",
+                cars_title: "Модельный ряд Китая",
+                cars_subtitle: "Прямые поставки с заводов-изготовителей по лучшим ценам.",
+                filter_all: "Все",
+                config_badge: "3D Конструктор",
+                config_title: "Сборка автомобиля",
+                config_subtitle: "Используйте интерактивные метки для заказа кузовных частей или соберите кастомный тюнинг в реальном 3D.",
+                config_tab_showroom: "Поиск деталей",
+                config_tab_builder: "3D Конструктор тюнинга",
+                part_instock: "В наличии на складе в Ташкенте",
+                price: "Цена",
+                order_btn: "Заказать деталь",
+                tuning_model: "Выберите модель",
+                tuning_color: "Цвет кузова",
+                tuning_wheels: "Выбор колесных дисков",
+                wheels_r18: "R18 Заводские диски",
+                wheels_free: "В комплекте",
+                wheels_r19: "R19 Черные спортивные диски",
+                wheels_r20: "R20 Диски узбекское золото",
+                tuning_kit: "Аэродинамический обвес",
+                kit_oem: "Заводской обвес (OEM)",
+                kit_free: "В комплекте",
+                kit_sport: "Спортивный обвес Carbon",
+                tuning_tint: "Тонировка автостекол",
+                tint_none: "Без тонировки",
+                tint_free: "В комплекте",
+                tint_30: "Заднее стекло и полусфера 30%",
+                tint_100: "Круговая тонировка Llumar 100%",
+                rotate_info: "Вращайте мышкой",
+                bill_title: "Смета тюнинг сборки",
+                bill_car: "Базовая цена автомобиля",
+                submit_build_btn: "Оформить заказ сборки",
+                catalog_badge: "Магазин",
+                catalog_title: "Каталог автозапчастей",
+                catalog_subtitle: "Кузовные панели, оптика и сопутствующие запчасти в Ташкенте с быстрой доставкой.",
+                logistics_badge: "Логистика",
+                logistics_title: "Карта доставки Silk Road",
+                logistics_subtitle: "Маршрут транспортировки грузов из Сианя в Ташкент и Самарканд в реальном времени.",
+                logistics_live: "Консоль мониторинга",
+                log_transit_cars: "Машин в пути",
+                log_avg_delivery: "Средний срок",
+                log_safety: "Безопасность",
+                log_parts: "База запчастей",
+                services_badge: "Услуги",
+                services_title: "Наши кузовные услуги",
+                services_subtitle: "Предоставляем качественный сервис по покраске и калибровке деталей.",
+                srv_vin_title: "Подбор по VIN коду",
+                srv_vin_desc: "Сверка с каталогами заводов Китая для полной совместимости крепежей.",
+                srv_free: "Бесплатно",
+                srv_paint_title: "Компьютерный подбор и Покраска",
+                srv_paint_desc: "Качественная покраска деталей в специализированной камере в Ташкенте.",
+                srv_install_title: "Установка под ключ",
+                srv_install_desc: "Установка деталей на автомобиль с сохранением всех дилерских гарантий.",
+                srv_delivery_title: "Доставка по Узбекистану",
+                srv_delivery_desc: "Доставка деталей во все города в надежной жесткой обрешетке.",
+                form_title: "Заявка на подбор",
+                form_subtitle: "Заполните форму, и специалист свяжется с вами в течение 10 минут.",
+                benefit_1: "Точное совпадение",
+                benefit_1_desc: "Детали устанавливаются в штатные крепления без доработок.",
+                benefit_2: "Удобная оплата",
+                benefit_2_desc: "Принимаем Uzcard, Humo, наличный расчет и перечисления.",
+                form_phone_lbl: "Телефон горячей линии:",
+                lbl_name: "Ваше имя",
+                lbl_phone: "Номер телефона",
+                lbl_car: "Модель автомобиля",
+                lbl_specs: "Что необходимо / Спецификация",
+                btn_send: "Отправить запрос",
+                success_title: "Спасибо, заявка принята!",
+                success_desc: "Ваш запрос успешно зарегистрирован. Менеджер свяжется с вами.",
+                btn_back: "Назад",
+                footer_about: "Платформа импорта и сборки оригинальных запчастей из Китая. Официальный хаб.",
+                footer_sections: "Разделы",
+                footer_models: "Популярные авто",
+                footer_contacts: "Контакты",
+                footer_address_val: "Ташкент, Сергелийский район, ТКАД, 45-дом (Сергелийский авторынок)",
+                admin_panel_btn: "Админ Панель",
+                admin_title: "Панель администрирования AUTO3D",
+                admin_enter_code: "Введите секретный код доступа:",
+                lbl_code: "Код доступа",
+                btn_login: "Войти",
+                admin_invalid: "Неверный код доступа!",
+                adm_tab_cars: "Управление Авто",
+                adm_tab_parts: "Управление Запчастями",
+                adm_select_car: "Выберите авто:",
+                adm_car_img: "Ссылка на фото машины",
+                adm_car_desc: "Описание машины",
+                adm_trim_settings: "Цены комплектаций",
+                adm_trim0_price: "Базовая цена (UZS)",
+                adm_trim1_price: "Цена Топ комплектации (UZS)",
+                adm_save: "Сохранить данные",
+                adm_select_part: "Выберите деталь:",
+                adm_part_img: "Ссылка на фото детали",
+                adm_part_price: "Цена детали (UZS)"
+            },
+            en: {
+                nav_home: "Home",
+                nav_cars: "Cars",
+                nav_configurator: "3D Configurator",
+                nav_catalog: "Spare Parts",
+                nav_logistics: "Shipping",
+                nav_services: "Services",
+                hero_badge: "Uzbek Premium Styling",
+                hero_title_1: "Premium Body Parts",
+                hero_title_2: "In Modern Design",
+                hero_subtitle: "Exclusive import of original body panels and tuning kits for Chinese EVs. Customize in 3D and order direct shipping.",
+                hero_btn_config: "Tuning Builder",
+                hero_btn_catalog: "Parts Catalog",
+                hero_stat_parts: "Parts in Stock",
+                hero_stat_days: "Days Shipping",
+                hero_stat_fits: "Factory Gap Fit",
+                hero_3d_mode: "3D Hologram",
+                hero_3d_spin: "Spin Model",
+                cars_badge: "Showroom",
+                cars_title: "Chinese Luxury EVs",
+                cars_subtitle: "Direct factory shipments with maximum safety guarantees.",
+                filter_all: "All",
+                config_badge: "Tuning Lab",
+                config_title: "Interactive Configurator",
+                config_subtitle: "Scan original body parts via hotspots or customize your ride in a full 3D viewport.",
+                config_tab_showroom: "Parts Showroom",
+                config_tab_builder: "3D Custom Tuning",
+                part_instock: "In stock in Tashkent warehouse",
+                price: "Price",
+                order_btn: "Order Part",
+                tuning_model: "Select Car Model",
+                tuning_color: "Exterior Paint Color",
+                tuning_wheels: "Select Alloy Wheels",
+                wheels_r18: "R18 Factory OEM Wheels",
+                wheels_free: "Included",
+                wheels_r19: "R19 Black Sport Rims",
+                wheels_r20: "R20 Uzbek Gold Rims",
+                tuning_kit: "Aerodynamic Body Kit",
+                kit_oem: "Factory Body Kit (OEM)",
+                kit_free: "Included",
+                kit_sport: "Carbon Fiber Sports Pack",
+                tuning_tint: "Window Tinting Film",
+                tint_none: "Clear glass",
+                tint_free: "Included",
+                tint_30: "Rear hemisphere tint 30%",
+                tint_100: "Full wrap Llumar 100%",
+                rotate_info: "Rotate with mouse",
+                bill_title: "Tuning Cost Estimation",
+                bill_car: "Base Car Price",
+                submit_build_btn: "Submit Tuning Order",
+                catalog_badge: "Catalog",
+                catalog_title: "Spare Parts Catalog",
+                catalog_subtitle: "High grade body elements, headlights, and mirrors ready for delivery in Tashkent.",
+                logistics_badge: "Silk Road Logistics",
+                logistics_title: "Transit Route Tracking Map",
+                logistics_subtitle: "Real-time logs of cargo movement from Xi'an factory to Tashkent and Samarkand.",
+                logistics_live: "Transit Log Terminal",
+                log_transit_cars: "Cars in Transit",
+                log_avg_delivery: "Avg. transit time",
+                log_safety: "Transit safety",
+                log_parts: "Parts database",
+                services_badge: "Services",
+                services_title: "Our Body Shop Services",
+                services_subtitle: "Providing paint matching, VIN lookup, and expert installation at our Tashkent center.",
+                srv_vin_title: "VIN Code Matching",
+                srv_vin_desc: "Verification via official databases of Chinese car manufacturers for a perfect fit.",
+                srv_free: "Free of charge",
+                srv_paint_title: "Computer Color Matching & Paint",
+                srv_paint_desc: "Premium paint application within cleanroom booths.",
+                srv_install_title: "Expert Installation",
+                srv_install_desc: "Mounting of body parts preserving factory warranties and gap dimensions.",
+                srv_delivery_title: "Regional Shipping",
+                srv_delivery_desc: "Secure freight packing in wooden crates delivered to all regions of Uzbekistan.",
+                form_title: "Request Quote",
+                form_subtitle: "Fill out the fields and our managers will contact you within 10 minutes.",
+                benefit_1: "Guaranteed Compatibility",
+                benefit_1_desc: "All replacement parts utilize factory mount points.",
+                benefit_2: "Flexible Payments",
+                benefit_2_desc: "Accepting Uzcard, Humo, cash, and corporate bank transfer.",
+                form_phone_lbl: "Hotline Support:",
+                lbl_name: "Your Name",
+                lbl_phone: "Phone Number",
+                lbl_car: "Car Model",
+                lbl_specs: "Required parts / Build specs",
+                btn_send: "Send Request",
+                success_title: "Request received!",
+                success_desc: "Your order details have been stored. Our representative will call you shortly.",
+                btn_back: "Return",
+                footer_about: "Import and custom configuration portal of original car parts from China. Tashkent Hub.",
+                footer_sections: "Sections",
+                footer_models: "Models",
+                footer_contacts: "Contacts",
+                footer_address_val: "45 TKAD, Sergeli District, Tashkent (opposite Sergeli Car Market)",
+                admin_panel_btn: "Admin Panel",
+                admin_title: "AUTO3D Control Console",
+                admin_enter_code: "Enter admin secret access code:",
+                lbl_code: "Code",
+                btn_login: "Access Console",
+                admin_invalid: "Invalid code!",
+                adm_tab_cars: "Manage Cars",
+                adm_tab_parts: "Manage Parts",
+                adm_select_car: "Select car:",
+                adm_car_img: "Car Image URL",
+                adm_car_desc: "Description",
+                adm_trim_settings: "Trim Level Price",
+                adm_trim0_price: "Base Price (UZS)",
+                adm_trim1_price: "Top Trim Price (UZS)",
+                adm_save: "Save Changes",
+                adm_select_part: "Select part:",
+                adm_part_img: "Part Image URL",
+                adm_part_price: "Part Price (UZS)"
+            }
+        };
+
+        /* 3. SHIPPED LOGISTICS LIVE DATA SIMULATION */
+        const citiesList = ['Xi\'an', 'Urumqi', 'Khorgos Gate', 'Almaty Hub', 'Tashkent Customs', 'Samarkand Warehouse'];
+        const logTemplates = [
+            "Part shipment [BYD-#VIN#] departed China logistics hub in #CITY#",
+            "Cargo flight holding #VIN# cleared customs at #CITY#",
+            "Transit truck fleet crossing border checkpoints near #CITY#",
+            "Shipment #VIN# accepted and cataloged at #CITY# hub",
+            "Logistic verification complete for batch #VIN# at #CITY#"
+        ];
+
+        function simulateLogs() {
+            const consoleEl = document.getElementById('logConsole');
+            if(!consoleEl) return;
+            
+            const formatTime = () => {
+                const now = new Date();
+                return now.toTimeString().split(' ')[0];
+            };
+
+            const generateRandomLog = () => {
+                const city = citiesList[Math.floor(Math.random() * citiesList.length)];
+                const template = logTemplates[Math.floor(Math.random() * logTemplates.length)];
+                const vin = Math.floor(1000 + Math.random() * 9000);
+                return `[${formatTime()}] ` + template.replace('#VIN#', `UZ-${vin}`).replace('#CITY#', city);
+            };
+
+            // Pre-populate console
+            for(let i=0; i<6; i++) {
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                line.innerHTML = `<span class="terminal-time">[${formatTime()}]</span> <span class="terminal-status">[OK]</span> ${generateRandomLog().substring(11)}`;
+                consoleEl.appendChild(line);
+            }
+
+            // Loop addition
+            setInterval(() => {
+                const line = document.createElement('div');
+                line.className = 'terminal-line';
+                line.innerHTML = `<span class="terminal-time">[${formatTime()}]</span> <span class="terminal-status">[IN TRANSIT]</span> ${generateRandomLog().substring(11)}`;
+                consoleEl.appendChild(line);
+                consoleEl.scrollTop = consoleEl.scrollHeight;
+                if(consoleEl.children.length > 20) {
+                    consoleEl.removeChild(consoleEl.firstChild);
+                }
+            }, 5000);
+        }
+
+        /* 4. WEBGL THREE.JS GRAPHICS SYSTEM */
+        let heroScene, heroCamera, heroRenderer, heroMesh;
+        let constScene, constCamera, constRenderer, constCarChassis, constWheels = [], constKitWings = [], constGlass;
+        
+        let activeBuilderConfig = {
+            carName: 'BYD Song Plus',
+            color: '#028f80',
+            wheels: 'classic',
+            wheelsPrice: 0,
+            kit: 'oem',
+            kitPrice: 0,
+            tint: 'none',
+            tintPrice: 0
+        };
+
+        function initThreeJS() {
+            // A. HERO 3D SCENE (GLOWING WIREFRAME POLYHEDRON CAR SOUL)
+            const heroContainer = document.querySelector('.hero-3d-wrapper');
+            if(heroContainer) {
+                const w = heroContainer.clientWidth;
+                const h = heroContainer.clientHeight;
+                
+                heroScene = new THREE.Scene();
+                heroCamera = new THREE.PerspectiveCamera(45, w / h, 0.1, 100);
+                heroCamera.position.z = 6;
+                
+                heroRenderer = new THREE.WebGLRenderer({ canvas: document.getElementById('hero-canvas'), alpha: true, antialias: true });
+                heroRenderer.setSize(w, h);
+                heroRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // Glowing Tech Wireframe Icosahedron
+                const geo = new THREE.IcosahedronGeometry(1.8, 1);
+                const mat = new THREE.MeshBasicMaterial({
+                    color: 0xd4af37,
+                    wireframe: true,
+                    transparent: true,
+                    opacity: 0.35
+                });
+                heroMesh = new THREE.Mesh(geo, mat);
+                heroScene.add(heroMesh);
+
+                // Tech particle orbits
+                const partCount = 400;
+                const partGeo = new THREE.BufferGeometry();
+                const partPos = new Float32Array(partCount * 3);
+                
+                for(let i=0; i<partCount; i++) {
+                    const radius = 2.2 + Math.random() * 0.4;
+                    const theta = Math.random() * Math.PI * 2;
+                    const phi = Math.acos((Math.random() * 2) - 1);
+                    
+                    partPos[i*3] = radius * Math.sin(phi) * Math.cos(theta);
+                    partPos[i*3+1] = radius * Math.sin(phi) * Math.sin(theta);
+                    partPos[i*3+2] = radius * Math.cos(phi);
+                }
+                
+                partGeo.setAttribute('position', new THREE.BufferAttribute(partPos, 3));
+                const partMat = new THREE.PointsMaterial({
+                    size: 0.04,
+                    color: 0x028f80,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                const particles = new THREE.Points(partGeo, partMat);
+                heroScene.add(particles);
+
+                // Orbiting Ring
+                const ringGeo = new THREE.RingGeometry(2.5, 2.53, 64);
+                const ringMat = new THREE.MeshBasicMaterial({ color: 0xd4af37, side: THREE.DoubleSide, transparent: true, opacity: 0.2 });
+                const ring = new THREE.Mesh(ringGeo, ringMat);
+                ring.rotation.x = Math.PI / 2.2;
+                heroScene.add(ring);
+
+                const animateHero = () => {
+                    requestAnimationFrame(animateHero);
+                    heroMesh.rotation.y += 0.005;
+                    heroMesh.rotation.x += 0.002;
+                    particles.rotation.y -= 0.003;
+                    ring.rotation.z += 0.002;
+                    heroRenderer.render(heroScene, heroCamera);
+                };
+                animateHero();
+
+                window.addEventListener('resize', () => {
+                    const nw = heroContainer.clientWidth;
+                    const nh = heroContainer.clientHeight;
+                    heroCamera.aspect = nw / nh;
+                    heroCamera.updateProjectionMatrix();
+                    heroRenderer.setSize(nw, nh);
+                });
+            }
+
+            // B. CONSTRUCTOR 3D SCENE (LIVE 3D CYBER CAR CUSTOMIZER)
+            const constContainer = document.querySelector('.constructor-3d-box');
+            if(constContainer) {
+                const w = constContainer.clientWidth;
+                const h = constContainer.clientHeight;
+                
+                constScene = new THREE.Scene();
+                constCamera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
+                constCamera.position.set(4, 2.5, 5); // Angle view
+                constCamera.lookAt(0, 0.5, 0);
+
+                constRenderer = new THREE.WebGLRenderer({ canvas: document.getElementById('constructor-canvas'), alpha: true, antialias: true });
+                constRenderer.setSize(w, h);
+                constRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+                // Lights
+                const ambLight = new THREE.AmbientLight(0xffffff, 0.4);
+                constScene.add(ambLight);
+
+                const dirLight = new THREE.DirectionLight(0xffffff, 0.8);
+                dirLight.position.set(5, 10, 5);
+                constScene.add(dirLight);
+
+                const glowLight = new THREE.PointLight(0x028f80, 2, 8);
+                glowLight.position.set(0, 0.2, 0);
+                constScene.add(glowLight);
+
+                // Building a low-poly Cybernetic Car mesh group
+                const carGroup = new THREE.Group();
+
+                // 1. Chassis
+                const bodyGeo = new THREE.BoxGeometry(2.4, 0.5, 1.1);
+                const bodyMat = new THREE.MeshStandardMaterial({
+                    color: 0x028f80,
+                    roughness: 0.1,
+                    metalness: 0.9,
+                    emissive: 0x028f80,
+                    emissiveIntensity: 0.1
+                });
+                constChassis = new THREE.Mesh(bodyGeo, bodyMat);
+                constChassis.position.y = 0.45;
+                carGroup.add(constChassis);
+
+                // 2. Cabin / Glass
+                const cabinGeo = new THREE.BoxGeometry(1.2, 0.4, 0.9);
+                const cabinMat = new THREE.MeshStandardMaterial({
+                    color: 0x1e293b,
+                    roughness: 0,
+                    metalness: 1.0,
+                    transparent: true,
+                    opacity: 0.3
+                });
+                constGlass = new THREE.Mesh(cabinGeo, cabinMat);
+                constGlass.position.set(-0.1, 0.8, 0);
+                carGroup.add(constGlass);
+
+                // 3. Wheels cylinders (4 wheels)
+                const wheelGeo = new THREE.CylinderGeometry(0.3, 0.3, 0.2, 24);
+                const wheelMat = new THREE.MeshStandardMaterial({ color: 0x090f15, roughness: 0.8 });
+                const rimGeo = new THREE.TorusGeometry(0.18, 0.04, 8, 24);
+                const rimMat = new THREE.MeshBasicMaterial({ color: 0x94a3b8 });
+
+                const wheelPositions = [
+                    { x: -0.7, y: 0.3, z: 0.6 },
+                    { x: 0.7, y: 0.3, z: 0.6 },
+                    { x: -0.7, y: 0.3, z: -0.6 },
+                    { x: 0.7, y: 0.3, z: -0.6 }
+                ];
+
+                wheelPositions.forEach((pos, idx) => {
+                    const wGroup = new THREE.Group();
+                    wGroup.position.set(pos.x, pos.y, pos.z);
+                    wGroup.rotation.x = Math.PI / 2;
+
+                    const tire = new THREE.Mesh(wheelGeo, wheelMat);
+                    wGroup.add(tire);
+
+                    const rim = new THREE.Mesh(rimGeo, rimMat);
+                    rim.position.z = 0.11;
+                    wGroup.add(rim);
+
+                    carGroup.add(wGroup);
+                    constWheels.push(wGroup); // save wheel reference
+                });
+
+                // 4. Aerodynamic Body Kit spoiler wings (toggled dynamically)
+                const wingGeo = new THREE.BoxGeometry(0.1, 0.15, 1.2);
+                const wingMat = new THREE.MeshBasicMaterial({ color: 0xffd700, transparent: true, opacity: 0 });
+                const wing = new THREE.Mesh(wingGeo, wingMat);
+                wing.position.set(1.2, 0.45, 0);
+                carGroup.add(wing);
+                constKitWings.push(wing);
+
+                const rearSpoilerGeo = new THREE.BoxGeometry(0.2, 0.1, 0.9);
+                const spoiler = new THREE.Mesh(rearSpoilerGeo, wingMat);
+                spoiler.position.set(-1.1, 0.7, 0);
+                carGroup.add(spoiler);
+                constKitWings.push(spoiler);
+
+                // Add entire car to scene
+                constScene.add(carGroup);
+
+                // Grid helper
+                const grid = new THREE.GridHelper(10, 20, 0xd4af37, 0x028f80);
+                grid.position.y = 0.01;
+                constScene.add(grid);
+
+                // Drag Interaction
+                let isDragging = false;
+                let prevMousePos = { x: 0, y: 0 };
+                const canvasEl = document.getElementById('constructor-canvas');
+
+                canvasEl.addEventListener('mousedown', (e) => {
+                    isDragging = true;
+                    prevMousePos = { x: e.clientX, y: e.clientY };
+                });
+
+                document.addEventListener('mouseup', () => isDragging = false);
+
+                canvasEl.addEventListener('mousemove', (e) => {
+                    if(!isDragging) return;
+                    const deltaX = e.clientX - prevMousePos.x;
+                    const deltaY = e.clientY - prevMousePos.y;
+                    carGroup.rotation.y += deltaX * 0.007;
+                    carGroup.rotation.x += deltaY * 0.005;
+                    prevMousePos = { x: e.clientX, y: e.clientY };
+                });
+
+                // Touch support
+                canvasEl.addEventListener('touchstart', (e) => {
+                    isDragging = true;
+                    prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                });
+                document.addEventListener('touchend', () => isDragging = false);
+                canvasEl.addEventListener('touchmove', (e) => {
+                    if(!isDragging) return;
+                    const deltaX = e.touches[0].clientX - prevMousePos.x;
+                    const deltaY = e.touches[0].clientY - prevMousePos.y;
+                    carGroup.rotation.y += deltaX * 0.007;
+                    carGroup.rotation.x += deltaY * 0.005;
+                    prevMousePos = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+                });
+
+                const animateConst = () => {
+                    requestAnimationFrame(animateConst);
+                    
+                    // Spin wheels
+                    constWheels.forEach(w => {
+                        w.rotation.y += 0.05; // rotational spin
+                    });
+
+                    // Idle float
+                    carGroup.position.y = Math.sin(Date.now() * 0.0015) * 0.05 + 0.1;
+
+                    constRenderer.render(constScene, constCamera);
+                };
+                animateConst();
+
+                window.addEventListener('resize', () => {
+                    const nw = constContainer.clientWidth;
+                    const nh = constContainer.clientHeight;
+                    constCamera.aspect = nw / nh;
+                    constCamera.updateProjectionMatrix();
+                    constRenderer.setSize(nw, nh);
+                });
+            }
+        }
+
+        function rotateHeroMesh() {
+            if(heroMesh) {
+                heroMesh.rotation.y += Math.PI / 4;
+                heroMesh.rotation.x += Math.PI / 6;
+            }
+        }
+
+        /* 5. MULTILINGUAL & RENDER LOGIC */
+        function switchLang(lang) {
+            currentLang = lang;
+            localStorage.setItem('auto3d_lang', lang);
+            
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                if (btn.innerText.toLowerCase() === lang) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            // Translate elements
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if(translations[lang][key]) {
+                    el.innerHTML = translations[lang][key];
+                }
+            });
+
+            // Update dynamically loaded elements
+            renderCars();
+            renderCatalog();
+            updateShowroomPartCard();
+            updateConstructorBill();
+        }
+
+        function switchCurrency(curr) {
+            currentCurrency = curr;
+            localStorage.setItem('auto3d_currency', curr);
+
+            document.querySelectorAll('.currency-btn').forEach(btn => {
+                if (btn.innerText === curr) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+
+            renderCars();
+            renderCatalog();
+            updateShowroomPartCard();
+            updateConstructorBill();
+            updateServicesPrices();
+        }
+
+        // Price formatting helper
+        function formatPrice(valUzs) {
+            const val = valUzs / exchangeRates[currentCurrency];
+            if(currentCurrency === 'UZS') {
+                return val.toLocaleString('ru-RU') + ' UZS';
+            } else if(currentCurrency === 'USD') {
+                return '$' + Math.round(val).toLocaleString('en-US');
+            } else if(currentCurrency === 'CNY') {
+                return Math.round(val).toLocaleString('zh-CN') + ' ¥';
+            }
+        }
+
+        function formatPriceSub(valUzs) {
+            if(currentCurrency === 'UZS') {
+                const usd = valUzs / exchangeRates['USD'];
+                const cny = valUzs / exchangeRates['CNY'];
+                return `$${Math.round(usd).toLocaleString('en-US')} / ${Math.round(cny).toLocaleString('zh-CN')} CNY`;
+            } else if(currentCurrency === 'USD') {
+                const uzs = valUzs;
+                const cny = valUzs / exchangeRates['CNY'];
+                return `${uzs.toLocaleString('ru-RU')} UZS / ${Math.round(cny).toLocaleString('zh-CN')} CNY`;
+            } else {
+                const uzs = valUzs;
+                const usd = valUzs / exchangeRates['USD'];
+                return `${uzs.toLocaleString('ru-RU')} UZS / $${Math.round(usd).toLocaleString('en-US')}`;
+            }
+        }
+
+        /* 6. POPULATE CARS SHOWROOM (SECTION 1) */
+        let activeCarFilter = 'all';
+
+        function filterCars(brand, element) {
+            activeCarFilter = brand;
+            document.querySelectorAll('.cars-filter-bar .filter-chip').forEach(c => c.classList.remove('active'));
+            if(element) {
+                element.classList.add('active');
+            } else {
+                // look for match
+                const chips = document.querySelectorAll('.cars-filter-bar .filter-chip');
+                chips.forEach(c => {
+                    if(c.innerText === brand || (brand === 'all' && c.getAttribute('data-i18n') === 'filter_all')) {
+                        c.classList.add('active');
+                    }
+                });
+            }
+            renderCars();
+        }
+
+        function switchCarTrim(carId, trimIdx) {
+            const car = carsDb.find(c => c.id === carId);
+            if(car) {
+                car.activeTrimIdx = trimIdx;
+                renderCars();
+            }
+        }
+
+        function renderCars() {
+            const grid = document.getElementById('carsGrid');
+            if(!grid) return;
+            grid.innerHTML = '';
+
+            const filtered = activeCarFilter === 'all' ? carsDb : carsDb.filter(c => c.brand.toLowerCase() === activeCarFilter.toLowerCase());
+
+            filtered.forEach(car => {
+                const activeTrim = car.trims[car.activeTrimIdx];
+                const card = document.createElement('div');
+                card.className = 'car-card card-3d';
+                
+                // Build Trim tabs
+                let trimTabsHtml = '';
+                car.trims.forEach((trim, idx) => {
+                    trimTabsHtml += `<div class="trim-tab ${idx === car.activeTrimIdx ? 'active' : ''}" onclick="switchCarTrim('${car.id}', ${idx})">${trim.name}</div>`;
+                });
+
+                card.innerHTML = `
+                    <div class="car-img-container">
+                        <span class="car-brand-tag">${car.brand}</span>
+                        <img src="${car.image}" alt="${car.name}">
+                    </div>
+                    <div class="car-info">
+                        <h3 class="car-title">${car.brand} ${car.name}</h3>
+                        <p class="car-desc">${car.desc[currentLang]}</p>
+                        
+                        <span class="car-trims-title" data-i18n="adm_trim_settings">Комплектации</span>
+                        <div class="car-trims">
+                            ${trimTabsHtml}
+                        </div>
+
+                        <div class="car-specs">
+                            <div class="spec-row">
+                                <span class="spec-label" data-i18n="spec_battery">Батарея</span>
+                                <span class="spec-value">${activeTrim.specs.battery}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label" data-i18n="spec_power">Мощность</span>
+                                <span class="spec-value">${activeTrim.specs.power}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label" data-i18n="spec_range">Запас хода</span>
+                                <span class="spec-value">${activeTrim.specs.range}</span>
+                            </div>
+                            <div class="spec-row">
+                                <span class="spec-label" data-i18n="spec_accel">Разгон 0-100</span>
+                                <span class="spec-value">${activeTrim.specs.accel}</span>
+                            </div>
+                        </div>
+
+                        <div class="car-footer">
+                            <div class="car-price-block">
+                                <span class="price-label" data-i18n="price">Цена</span>
+                                <span class="price-value-active">${formatPrice(activeTrim.priceUzs)}</span>
+                                <span class="price-value-sub">${formatPriceSub(activeTrim.priceUzs)}</span>
+                            </div>
+                            <button class="btn btn-secondary" onclick="launchConstructor('${car.brand} ${car.name}')" style="padding: 10px 18px; font-size:0.75rem;" data-i18n="hero_btn_config">3D Тюнинг</button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+            apply3DTilt();
+        }
+
+        function launchConstructor(carFullName) {
+            document.getElementById('configurator').scrollIntoView({ behavior: 'smooth' });
+            
+            // Switch constructor tab to Builder
+            const tabs = document.querySelectorAll('.config-tab');
+            switchConfigPane('builder', tabs[1]);
+
+            // Set car select field
+            const select = document.getElementById('constructorCarSelect');
+            if(select) {
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].value === carFullName) {
+                        select.selectedIndex = i;
+                        break;
+                    }
+                }
+                changeConstructorCar();
+            }
+        }
+
+        /* 7. CONFIGURATOR CONTROLLER */
+        function switchConfigPane(paneId, btn) {
+            document.querySelectorAll('.config-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById('pane-' + paneId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        // Tab 1: Showroom Hotspots
+        let activeHotspotKey = 'bumper_f';
+
+        function loadHotspotPart(partKey, element) {
+            activeHotspotKey = partKey;
+            document.querySelectorAll('.hotspot').forEach(h => h.classList.remove('active'));
+            if(element) element.classList.add('active');
+            updateShowroomPartCard();
+        }
+
+        function updateShowroomPartCard() {
+            const part = partsDb[activeHotspotKey];
+            if(!part) return;
+
+            document.getElementById('partCode').innerText = 'Арт: ' + part.code;
+            document.getElementById('partTitle').innerText = part.title[currentLang];
+            document.getElementById('partDesc').innerText = part.desc[currentLang];
+            document.getElementById('partImg').src = part.image;
+            document.getElementById('partPriceMain').innerText = formatPrice(part.priceUzs);
+            document.getElementById('partPriceSub').innerText = formatPriceSub(part.priceUzs);
+        }
+
+        function orderPartFromConfig() {
+            const part = partsDb[activeHotspotKey];
+            if(!part) return;
+            
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('userCar').value = document.getElementById('constructorCarSelect').value;
+            document.getElementById('userPart').value = `Заказ детали: ${part.title[currentLang]} (${part.code})`;
+        }
+
+        // Tab 2: 3D Tuning Constructor
+        function changeConstructorCar() {
+            const select = document.getElementById('constructorCarSelect');
+            activeBuilderConfig.carName = select.value;
+            document.getElementById('constructorCarTitleDisplay').innerText = select.value + ' 3D Custom';
+
+            // Visual Scale changes in ThreeJS to simulate size of different Chinese cars
+            if(constChassis) {
+                if(select.value.includes('Li Auto') || select.value.includes('Monjaro')) {
+                    // Larger SUV proportions
+                    constChassis.scale.set(1.1, 1.15, 1.05);
+                } else if(select.value.includes('Zeekr')) {
+                    // Sleeker, wider shooting brake
+                    constChassis.scale.set(1.2, 0.9, 1.15);
+                } else {
+                    // Normal crossover
+                    constChassis.scale.set(1.0, 1.0, 1.0);
+                }
+            }
+
+            updateConstructorBill();
+        }
+
+        function setCarColor(hex, colorName, element) {
+            activeBuilderConfig.color = hex;
+            document.getElementById('selectedColorName').innerText = colorName;
+            document.querySelectorAll('.color-option').forEach(c => c.classList.remove('active'));
+            element.classList.add('active');
+
+            // Apply to ThreeJS Mesh
+            if(constChassis) {
+                constChassis.material.color.setHex(parseInt(hex.replace('#', '0x')));
+                constChassis.material.emissive.setHex(parseInt(hex.replace('#', '0x')));
+                constChassis.material.emissiveIntensity = 0.15;
+            }
+        }
+
+        function setWheels(wheelStyle, extraPriceUzs, element) {
+            activeBuilderConfig.wheels = wheelStyle;
+            activeBuilderConfig.wheelsPrice = extraPriceUzs;
+            
+            const group = element.parentNode;
+            group.querySelectorAll('.tuning-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+
+            // Apply visual changes in ThreeJS
+            constWheels.forEach(w => {
+                const rim = w.children[1];
+                if(wheelStyle === 'gold') {
+                    rim.material.color.setHex(0xffc300); // gold
+                    w.scale.set(1.15, 1.15, 1.15); // R20 bigger size
+                } else if(wheelStyle === 'sport') {
+                    rim.material.color.setHex(0x111827); // dark carbon
+                    w.scale.set(1.08, 1.08, 1.08); // R19
+                } else {
+                    rim.material.color.setHex(0x94a3b8); // classic silver
+                    w.scale.set(1.0, 1.0, 1.0); // R18
+                }
+            });
+
+            updateConstructorBill();
+        }
+
+        function setBodyKit(kitStyle, extraPriceUzs, element) {
+            activeBuilderConfig.kit = kitStyle;
+            activeBuilderConfig.kitPrice = extraPriceUzs;
+
+            const group = element.parentNode;
+            group.querySelectorAll('.tuning-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+
+            // Toggle wings opacity in ThreeJS
+            constKitWings.forEach(wing => {
+                wing.material.opacity = (kitStyle === 'sport') ? 0.9 : 0;
+            });
+
+            updateConstructorBill();
+        }
+
+        function setTint(tintStyle, extraPriceUzs, element) {
+            activeBuilderConfig.tint = tintStyle;
+            activeBuilderConfig.tintPrice = extraPriceUzs;
+
+            const group = element.parentNode;
+            group.querySelectorAll('.tuning-item').forEach(i => i.classList.remove('active'));
+            element.classList.add('active');
+
+            // Apply cabin opacity changes in ThreeJS
+            if(constGlass) {
+                if(tintStyle === 'tint100') {
+                    constGlass.material.opacity = 0.95; // Fully opaque dark
+                    constGlass.material.color.setHex(0x020408);
+                } else if(tintStyle === 'tint30') {
+                    constGlass.material.opacity = 0.6; // Semi tint
+                    constGlass.material.color.setHex(0x0f172a);
+                } else {
+                    constGlass.material.opacity = 0.3; // Light clear cyan
+                    constGlass.material.color.setHex(0x1e293b);
+                }
+            }
+
+            updateConstructorBill();
+        }
+
+        function getCarBasePriceUzs(carName) {
+            const car = carsDb.find(c => (c.brand + ' ' + c.name) === carName);
+            return car ? car.trims[0].priceUzs : 300000000;
+        }
+
+        function updateConstructorBill() {
+            const basePrice = getCarBasePriceUzs(activeBuilderConfig.carName);
+            const total = basePrice + activeBuilderConfig.wheelsPrice + activeBuilderConfig.kitPrice + activeBuilderConfig.tintPrice;
+
+            document.getElementById('billCarPrice').innerText = formatPrice(basePrice);
+            document.getElementById('billWheelsPrice').innerText = formatPrice(activeBuilderConfig.wheelsPrice);
+            document.getElementById('billKitPrice').innerText = formatPrice(activeBuilderConfig.kitPrice);
+            document.getElementById('billTintPrice').innerText = formatPrice(activeBuilderConfig.tintPrice);
+
+            document.getElementById('billTotalMain').innerText = formatPrice(total);
+            document.getElementById('billTotalSub').innerText = formatPriceSub(total);
+
+            // Set static pricing inside option labels
+            document.getElementById('priceWheelsSport').innerText = '+' + formatPrice(6500000);
+            document.getElementById('priceWheelsGold').innerText = '+' + formatPrice(13000000);
+            document.getElementById('priceKitSport').innerText = '+' + formatPrice(19000000);
+            document.getElementById('priceTint30').innerText = '+' + formatPrice(2500000);
+            document.getElementById('priceTint100').innerText = '+' + formatPrice(5000000);
+        }
+
+        function orderCustomBuild() {
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('userCar').value = activeBuilderConfig.carName;
+            document.getElementById('userPart').value = `Спецификация тюнинг-сборки 3D:
+- Цвет: ${document.getElementById('selectedColorName').innerText}
+- Диски: ${activeBuilderConfig.wheels === 'classic' ? 'R18 OEM' : activeBuilderConfig.wheels === 'sport' ? 'R19 Sport' : 'R20 Uzbek Gold'}
+- Обвес: ${activeBuilderConfig.kit === 'oem' ? 'Заводской' : 'Спортивный Carbon'}
+- Тонировка: ${activeBuilderConfig.tint === 'none' ? 'Без тонировки' : activeBuilderConfig.tint === 'tint30' ? '30% тонировка' : '100% тонировка'}`;
+        }
+
+        /* 8. SPARE PARTS CATALOG (SECTION 2) */
+        let activeCatalogFilter = 'all';
+
+        function filterCatalogBrand(brand, element) {
+            activeCatalogFilter = brand;
+            document.querySelectorAll('.catalog-search-row .filter-chip').forEach(c => c.classList.remove('active'));
+            if(element) element.classList.add('active');
+            renderCatalog();
+        }
+
+        function searchCatalog() {
+            renderCatalog();
+        }
+
+        function renderCatalog() {
+            const grid = document.getElementById('catalogGrid');
+            if(!grid) return;
+            grid.innerHTML = '';
+
+            const searchQuery = document.getElementById('catalogSearch').value.toLowerCase();
+            const keys = Object.keys(partsDb);
+
+            keys.forEach(key => {
+                const part = partsDb[key];
+                
+                // Brand filtering matches
+                const matchesBrand = (activeCatalogFilter === 'all') || 
+                                     (part.title[currentLang].toLowerCase().includes(activeCatalogFilter.toLowerCase())) ||
+                                     (part.code.toLowerCase().includes(activeCatalogFilter.toLowerCase()));
+
+                // Search input matches
+                const matchesSearch = part.title[currentLang].toLowerCase().includes(searchQuery) ||
+                                      part.code.toLowerCase().includes(searchQuery) ||
+                                      part.desc[currentLang].toLowerCase().includes(searchQuery);
+
+                if(matchesBrand && matchesSearch) {
+                    const card = document.createElement('div');
+                    card.className = 'part-card card-3d';
+                    card.innerHTML = `
+                        <div class="part-card-img">
+                            <span class="part-card-badge">Original</span>
+                            <img src="${part.image}" alt="${part.title[currentLang]}">
+                        </div>
+                        <div class="part-card-info">
+                            <span style="font-size:0.7rem; color:var(--text-secondary); font-weight:700;">${part.code}</span>
+                            <h3 class="part-card-title">${part.title[currentLang]}</h3>
+                            <p class="part-card-desc">${part.desc[currentLang]}</p>
+                            <div class="part-card-footer">
+                                <div>
+                                    <div class="part-card-price-main">${formatPrice(part.priceUzs)}</div>
+                                    <div class="part-card-price-sub">${formatPriceSub(part.priceUzs)}</div>
+                                </div>
+                                <button class="part-card-btn" onclick="quickOrderPart('${key}')" data-i18n="order_btn">Купить</button>
+                            </div>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                }
+            });
+            apply3DTilt();
+        }
+
+        function quickOrderPart(partKey) {
+            const part = partsDb[partKey];
+            if(!part) return;
+
+            document.getElementById('order').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('userCar').value = 'BYD / Geely / Zeekr';
+            document.getElementById('userPart').value = `Купить деталь: ${part.title[currentLang]} (Арт: ${part.code})`;
+        }
+
+        /* 9. LOGISTICS ROUTE MAP SIMULATOR */
+        const mapCoordinates = [
+            { x: 500, y: 230 }, // Xi'an
+            { x: 400, y: 160 }, // Urumqi
+            { x: 320, y: 120 }, // Khorgos
+            { x: 260, y: 125 }, // Almaty
+            { x: 140, y: 180 }, // Tashkent
+            { x: 80, y: 220 }   // Samarkand
+        ];
+
+        let currentMapPointIdx = 0;
+
+        function animateTruckOnMap() {
+            const truck = document.getElementById('truckIcon');
+            if(!truck) return;
+
+            setInterval(() => {
+                currentMapPointIdx = (currentMapPointIdx + 1) % mapCoordinates.length;
+                const coord = mapCoordinates[currentMapPointIdx];
+                truck.setAttribute('transform', `translate(${coord.x}, ${coord.y})`);
+            }, 3500);
+        }
+
+        function triggerMapTerminal(location) {
+            const consoleEl = document.getElementById('logConsole');
+            if(!consoleEl) return;
+
+            const time = new Date().toTimeString().split(' ')[0];
+            const line = document.createElement('div');
+            line.className = 'terminal-line';
+            line.style.color = '#ffd700'; // Gold high priority
+            
+            let message = '';
+            if(location === 'khorgos') {
+                message = `[${time}] BORDER: Cargo dispatch passed radiation scans & security checks at Khorgos Border gate.`;
+            } else if(location === 'tashkent') {
+                message = `[${time}] WAREHOUSE: Sergeli hub registered new arrival of 18 container units from Xi'an.`;
+            } else {
+                message = `[${time}] MAP CLICK: Tracking sensor active at regional node ${location.toUpperCase()}`;
+            }
+
+            line.innerHTML = `<span class="terminal-time">[${time}]</span> <span class="terminal-status">[MAP EVENT]</span> ${message.substring(11)}`;
+            consoleEl.appendChild(line);
+            consoleEl.scrollTop = consoleEl.scrollHeight;
+        }
+
+        /* 10. SERVICES SECTION PRICING UPDATE */
+        function updateServicesPrices() {
+            document.getElementById('priceSrv2').innerText = 'от ' + formatPrice(1200000);
+            document.getElementById('priceSrv3').innerText = 'от ' + formatPrice(500000);
+            document.getElementById('priceSrv4').innerText = 'от ' + formatPrice(100000);
+        }
+
+        /* 11. LEAD FORM ACTIONS */
+        function submitForm(event) {
+            event.preventDefault();
+            
+            // Show sending text
+            const btn = event.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.innerText = 'Sending / Yuborilmoqda...';
+            btn.disabled = true;
+
+            setTimeout(() => {
+                // Show success dialog overlay
+                document.getElementById('successOverlay').classList.add('active');
+                
+                // reset form fields
+                event.target.reset();
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        function closeSuccess() {
+            document.getElementById('successOverlay').classList.remove('active');
+        }
+
+        /* 12. ADMIN PORTAL FUNCTIONALITY (ACCESS CODE: 2026-UZ-AUTO3D) */
+        function openAdmin() {
+            document.getElementById('adminModal').classList.add('active');
+            document.getElementById('adminLockScreen').style.display = 'block';
+            document.getElementById('adminConsole').style.display = 'none';
+            document.getElementById('adminErr').style.display = 'none';
+            document.getElementById('adminCodeField').value = '';
+        }
+
+        function closeAdmin() {
+            document.getElementById('adminModal').classList.remove('active');
+        }
+
+        function verifyAdminCode() {
+            const code = document.getElementById('adminCodeField').value;
+            if(code === '2026-UZ-AUTO3D') {
+                document.getElementById('adminLockScreen').style.display = 'none';
+                document.getElementById('adminConsole').style.display = 'block';
+                populateAdminSelectors();
+            } else {
+                document.getElementById('adminErr').style.display = 'block';
+            }
+        }
+
+        function switchAdminTab(paneId, btn) {
+            document.querySelectorAll('.admin-pane').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-btn').forEach(t => t.classList.remove('active'));
+            
+            document.getElementById(paneId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function populateAdminSelectors() {
+            // Populate cars dropdown
+            const carSel = document.getElementById('adminCarSelect');
+            carSel.innerHTML = '';
+            carsDb.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.innerText = c.brand + ' ' + c.name;
+                carSel.appendChild(opt);
+            });
+            loadAdminCarData();
+
+            // Populate parts dropdown
+            const partSel = document.getElementById('adminPartSelect');
+            partSel.innerHTML = '';
+            Object.keys(partsDb).forEach(key => {
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.innerText = partsDb[key].title[currentLang];
+                partSel.appendChild(opt);
+            });
+            loadAdminPartData();
+        }
+
+        // CAR EDITOR DATA LOAD/SAVE
+        function loadAdminCarData() {
+            const carId = document.getElementById('adminCarSelect').value;
+            const car = carsDb.find(c => c.id === carId);
+            if(car) {
+                document.getElementById('adminCarImgUrl').value = car.image;
+                document.getElementById('adminCarDesc').value = car.desc[currentLang];
+                document.getElementById('adminTrim0PriceUzs').value = car.trims[0].priceUzs;
+                document.getElementById('adminTrim1PriceUzs').value = car.trims[1].priceUzs;
+            }
+        }
+
+        function saveAdminCarChanges() {
+            const carId = document.getElementById('adminCarSelect').value;
+            const car = carsDb.find(c => c.id === carId);
+            if(car) {
+                car.image = document.getElementById('adminCarImgUrl').value;
+                car.desc[currentLang] = document.getElementById('adminCarDesc').value;
+                car.trims[0].priceUzs = parseInt(document.getElementById('adminTrim0PriceUzs').value);
+                car.trims[1].priceUzs = parseInt(document.getElementById('adminTrim1PriceUzs').value);
+                
+                // save back to localStorage
+                localStorage.setItem('auto3d_cars', JSON.stringify(carsDb));
+                
+                // re-render page details
+                renderCars();
+                updateConstructorBill();
+                alert('Car changes saved successfully!');
+            }
+        }
+
+        // PARTS EDITOR DATA LOAD/SAVE
+        function loadAdminPartData() {
+            const partKey = document.getElementById('adminPartSelect').value;
+            const part = partsDb[partKey];
+            if(part) {
+                document.getElementById('adminPartImgUrl').value = part.image;
+                document.getElementById('adminPartPriceUzs').value = part.priceUzs;
+            }
+        }
+
+        function saveAdminPartChanges() {
+            const partKey = document.getElementById('adminPartSelect').value;
+            const part = partsDb[partKey];
+            if(part) {
+                part.image = document.getElementById('adminPartImgUrl').value;
+                part.priceUzs = parseInt(document.getElementById('adminPartPriceUzs').value);
+                
+                // save back to localStorage
+                localStorage.setItem('auto3d_parts', JSON.stringify(partsDb));
+                
+                // re-render
+                renderCatalog();
+                updateShowroomPartCard();
+                alert('Part changes saved successfully!');
+            }
+        }
+
+        /* 13. INTERACTIVE 3D PERSPECTIVE CARD HOVER (TILT) */
+        function apply3DTilt() {
+            document.querySelectorAll('.card-3d').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    
+                    const xc = rect.width / 2;
+                    const yc = rect.height / 2;
+                    
+                    const angleX = (yc - y) / 10;
+                    const angleY = (x - xc) / 15;
+                    
+                    card.style.setProperty('--rx', `${angleX}deg`);
+                    card.style.setProperty('--ry', `${angleY}deg`);
+                });
+                
+                card.addEventListener('mouseleave', () => {
+                    card.style.setProperty('--rx', '0deg');
+                    card.style.setProperty('--ry', '0deg');
+                });
+            });
+        }
+
+        // Toggle mobile navbar menu
+        function toggleMenu() {
+            const menu = document.getElementById('navMenu');
+            menu.classList.toggle('active');
+        }
+
+        // Page load triggers
+        window.addEventListener('load', () => {
+            initThreeJS();
+            simulateLogs();
+            animateTruckOnMap();
+            
+            // Initial renders
+            renderCars();
+            renderCatalog();
+            updateShowroomPartCard();
+            updateConstructorBill();
+            updateServicesPrices();
+            
+            // Set languages based on saved setting
+            switchLang(currentLang);
+            
+            // Scroll nav transparency effect
+            window.addEventListener('scroll', () => {
+                const header = document.getElementById('navbar');
+                if(window.scrollY > 50) {
+                    header.classList.add('scrolled');
+                } else {
+                    header.classList.remove('scrolled');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
