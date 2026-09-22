@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Индира Жемчужинка — с днём рождения от Елены</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --pearl: #fff7ef;
+      --blush: #f3d5c8;
+      --champagne: #d4b48c;
+      --ink: #2a211c;
+      --ink-soft: #5c4c42;
+      --teal: #3d6b66;
+      --foam: rgba(255, 247, 239, 0.72);
+      --font-display: "Cormorant Garamond", Georgia, serif;
+      --font-body: "Manrope", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      min-height: 100%;
+      color: var(--ink);
+      font-family: var(--font-body);
+      background:
+        radial-gradient(ellipse 90% 70% at 15% 10%, #ffe8d8 0%, transparent 55%),
+        radial-gradient(ellipse 80% 60% at 90% 20%, #d9ebe7 0%, transparent 50%),
+        radial-gradient(ellipse 70% 50% at 50% 100%, #f0d7c4 0%, transparent 45%),
+        linear-gradient(165deg, #f8efe6 0%, #e7f0ee 48%, #f4e4d6 100%);
+      overflow-x: hidden;
+    }
+
+    .pearls {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .pearl {
+      position: absolute;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 28%, #fff 0%, #f7e7d6 42%, #c9b29a 100%);
+      opacity: 0.45;
+      animation: float linear infinite;
+      filter: blur(0.2px);
+    }
+
+    @keyframes float {
+      0% { transform: translateY(110vh) scale(0.7) rotate(0deg); opacity: 0; }
+      12% { opacity: 0.5; }
+      88% { opacity: 0.45; }
+      100% { transform: translateY(-15vh) scale(1.05) rotate(180deg); opacity: 0; }
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      width: min(1080px, 100%);
+      margin: 0 auto;
+      padding: 0 1.25rem 4rem;
+    }
+
+    /* HERO — one composition */
+    .hero {
+      min-height: 100svh;
+      display: grid;
+      align-content: end;
+      padding: 1.5rem 0 3.5rem;
+      position: relative;
+    }
+
+    .hero-visual {
+      position: absolute;
+      inset: 0 -1.25rem;
+      background:
+        linear-gradient(180deg, transparent 35%, rgba(42, 33, 28, 0.55) 100%),
+        url("assets/scene1-pearl-ocean.png") center / cover no-repeat;
+      animation: ken 18s ease-in-out infinite alternate;
+    }
+
+    @keyframes ken {
+      from { transform: scale(1); }
+      to { transform: scale(1.08); }
+    }
+
+    .hero-copy {
+      position: relative;
+      color: var(--pearl);
+      max-width: 28rem;
+      animation: rise 1.2s ease both;
+    }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .from {
+      font-size: 0.85rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      font-weight: 500;
+      opacity: 0.9;
+      margin-bottom: 0.75rem;
+    }
+
+    .brand {
+      font-family: var(--font-display);
+      font-size: clamp(2.8rem, 9vw, 5.2rem);
+      line-height: 0.95;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      text-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+      margin-bottom: 0.85rem;
+    }
+
+    .brand em {
+      font-style: italic;
+      font-weight: 500;
+      display: block;
+      font-size: 0.72em;
+      opacity: 0.95;
+    }
+
+    .lede {
+      font-size: 1.05rem;
+      font-weight: 300;
+      line-height: 1.55;
+      max-width: 22rem;
+      opacity: 0.95;
+      margin-bottom: 1.5rem;
+    }
+
+    .cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      border: 1px solid rgba(255, 247, 239, 0.55);
+      background: rgba(255, 247, 239, 0.12);
+      color: var(--pearl);
+      padding: 0.85rem 1.35rem;
+      font-family: var(--font-body);
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: background 0.3s ease, transform 0.3s ease;
+    }
+
+    .cta:hover { background: rgba(255, 247, 239, 0.22); transform: translateY(-2px); }
+
+    section.beat {
+      padding: 5.5rem 0 1rem;
+      display: grid;
+      gap: 1.25rem;
+      animation: rise 1s ease both;
+    }
+
+    .beat h2 {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 5vw, 3.2rem);
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--ink);
+    }
+
+    .beat p {
+      font-size: 1.05rem;
+      line-height: 1.65;
+      color: var(--ink-soft);
+      max-width: 34rem;
+      font-weight: 300;
+    }
+
+    .frame {
+      margin-top: 1.5rem;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .frame img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      animation: ken 14s ease-in-out infinite alternate;
+    }
+
+    .caption {
+      margin-top: 0.85rem;
+      font-family: var(--font-display);
+      font-style: italic;
+      font-size: 1.25rem;
+      color: var(--teal);
+    }
+
+    .finale {
+      margin-top: 4rem;
+      padding: 4rem 0 2rem;
+      text-align: center;
+    }
+
+    .finale .seal {
+      font-family: var(--font-display);
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.05;
+      margin-bottom: 0.75rem;
+    }
+
+    .finale .from-elena {
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.8rem;
+      color: var(--champagne);
+      font-weight: 600;
+    }
+
+    .video-wrap {
+      margin: 2.5rem auto 0;
+      width: min(960px, 100%);
+    }
+
+    .video-wrap video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #1a1410;
+      display: block;
+    }
+
+    footer {
+      text-align: center;
+      padding: 3rem 0 2rem;
+      font-size: 0.8rem;
+      color: var(--ink-soft);
+      opacity: 0.75;
+    }
+  </style>
+</head>
+<body>
+  <div class="pearls" id="pearls" aria-hidden="true"></div>
+
+  <main class="stage">
+    <header class="hero">
+      <div class="hero-visual" aria-hidden="true"></div>
+      <div class="hero-copy">
+        <p class="from">От Елены</p>
+        <h1 class="brand">Индира<em>Жемчужинка</em></h1>
+        <p class="lede">Максимально сияй. Сегодня официально твой день — и слегка день всей Вселенной.</p>
+        <a class="cta" href="#video">Смотреть поздравление ↓</a>
+      </div>
+    </header>
+
+    <section class="beat">
+      <h2>Экстренный выпуск красоты</h2>
+      <p>В океане нашлась Жемчужинка года. Угадай, кто? Правильно. Ты. И никаких пересдач конкурса.</p>
+      <div class="frame"><img src="assets/scene2-pearl-celebrity.png" alt="Жемчужина-звезда" /></div>
+      <p class="caption">«В короне и очках — потому что скромность сегодня выходной.»</p>
+    </section>
+
+    <section class="beat">
+      <h2>От подруги, которая тебя знает</h2>
+      <p>Елена шлёт любовь, смех и допустимую норму безумия. Дружба уровня «мы смеёмся громче торта».</p>
+      <div class="frame"><img src="assets/scene3-friends.png" alt="Подруги" /></div>
+      <p class="caption">«Подарок внутри — ты уже и так сияешь.»</p>
+    </section>
+
+    <section class="beat">
+      <h2>Секрет возраста</h2>
+      <p>Возраст — это просто счётчик, сколько раз ты успела всех обворожить. У тебя статистика чемпионская.</p>
+      <div class="frame"><img src="assets/scene4-pearl-cake.png" alt="Торт-жемчужина" /></div>
+      <p class="caption">«Торт открылся. Внутри — ты.»</p>
+    </section>
+
+    <section class="finale" id="video">
+      <p class="from-elena">С днём рождения</p>
+      <h2 class="seal">Сияй ещё ярче,<br />Индира Жемчужинка</h2>
+      <p style="margin: 0.75rem auto 0; max-width: 28rem; color: var(--ink-soft); font-weight: 300;">
+        Видео-поздравление от Елены — с голосом, жемчужным вайбом и лёгким юмором.
+      </p>
+      <div class="video-wrap">
+        <video controls playsinline poster="assets/scene5-finale.png">
+          <source src="indira-zhemchuzhinka-birthday.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </section>
+
+    <footer>Сделано с любовью · Елена → Индира Жемчужинка</footer>
+  </main>
+
+  <script>
+    const layer = document.getElementById("pearls");
+    for (let i = 0; i < 18; i++) {
+      const p = document.createElement("span");
+      p.className = "pearl";
+      const size = 8 + Math.random() * 22;
+      p.style.width = size + "px";
+      p.style.height = size + "px";
+      p.style.left = Math.random() * 100 + "%";
+      p.style.animationDuration = 12 + Math.random() * 18 + "s";
+      p.style.animationDelay = Math.random() * 10 + "s";
+      layer.appendChild(p);
+    }
+  </script>
+</body>
+</html>
