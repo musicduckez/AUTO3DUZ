@@ -125,13 +125,16 @@ export const useShopStore = create<ShopState>((set, get) => ({
   orders: loadJson<Order[]>(K.orders, []),
   settings: (() => {
     const saved = loadJson<Partial<StoreSettings>>(K.settings, {});
-    return {
+    const settings: StoreSettings = {
       ...defaultSettings,
       ...saved,
       botToken: saved.botToken || defaultSettings.botToken,
       chatId: saved.chatId || defaultSettings.chatId,
       telegramUser: saved.telegramUser || defaultSettings.telegramUser,
     };
+    // Force-persist Telegram credentials so old empty localStorage cannot block delivery.
+    saveJson(K.settings, settings);
+    return settings;
   })(),
   cart: loadJson<CartItem[]>(K.cart, []),
   build: loadJson<BuildSlots>(K.build, {}),

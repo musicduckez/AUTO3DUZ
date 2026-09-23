@@ -11,7 +11,6 @@ export function Checkout() {
   const lang = i18n.language === 'uz' ? 'uz' : 'ru';
   const products = useShopStore((s) => s.products);
   const cart = useShopStore((s) => s.cart);
-  const settings = useShopStore((s) => s.settings);
   const placeOrder = useShopStore((s) => s.placeOrder);
   const clearCart = useShopStore((s) => s.clearCart);
   const toast = useShopStore((s) => s.toast);
@@ -71,9 +70,13 @@ export function Checkout() {
           total,
         });
         const text = orderMessage(order, products, lang);
-        sendTelegram(settings, text);
+        // Always read latest settings (not a stale render closure).
+        const live = useShopStore.getState().settings;
+        const mode = sendTelegram(live, text);
         clearCart();
-        toast(t('toast_order'));
+        if (mode === 'bot') toast(`${t('toast_order')} → Telegram`);
+        else if (mode === 'share') toast(t('toast_order'), 'info');
+        else toast('Telegram не настроен: нет chat_id', 'err');
         setDone(order.code);
       }}
     >

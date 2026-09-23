@@ -8,7 +8,7 @@ export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz
     return `• ${title} ×${it.qty} — ${formatSom((p?.price ?? 0) * it.qty)}`;
   });
   return [
-    `NEXUS PC · ${order.code}`,
+    `🛒 NEXUS PC · ${order.code}`,
     `${order.name}`,
     `${order.phone} · ${order.telegram}`,
     `${order.city}, ${order.address}`,
@@ -22,43 +22,55 @@ export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz
     .join('\n');
 }
 
-export function sendTelegram(settings: StoreSettings, text: string) {
-  if (settings.botToken && settings.chatId) {
-    const url =
-      `https://api.telegram.org/bot${settings.botToken}/sendMessage` +
-      `?chat_id=${encodeURIComponent(settings.chatId)}` +
-      `&text=${encodeURIComponent(text)}`;
+function ensureBridge() {
+  let iframe = document.getElementById('tg-bridge') as HTMLIFrameElement | null;
+  if (!iframe) {
+    iframe = document.createElement('iframe');
+    iframe.name = 'tg-bridge';
+    iframe.id = 'tg-bridge';
+    iframe.title = 'tg';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+  }
+  return iframe;
+}
 
-    // Prefer image beacon / fetch so popup blockers do not hide delivery.
-    const img = new Image();
-    img.src = url;
+/** Sends order text to Telegram. Returns 'bot' | 'share' | 'missing'. */
+export function sendTelegram(settings: StoreSettings, text: string): 'bot' | 'share' | 'missing' {
+  const token = (settings.botToken || '').trim();
+  const chatId = String(settings.chatId || '').trim();
 
-    void fetch(url, { mode: 'no-cors', keepalive: true }).catch(() => {
-      // Fallback: hidden form into iframe (works even if fetch is blocked).
-      const iframe = document.getElementById('tg-bridge') as HTMLIFrameElement | null;
-      const form = document.createElement('form');
-      form.method = 'GET';
-      form.action = `https://api.telegram.org/bot${settings.botToken}/sendMessage`;
-      form.target = iframe?.name || 'tg-bridge';
-      form.style.display = 'none';
-      const add = (name: string, value: string) => {
-        const input = document.createElement('input');
-        input.name = name;
-        input.value = value;
-        form.appendChild(input);
-      };
-      add('chat_id', settings.chatId);
-      add('text', text);
-      document.body.appendChild(form);
-      form.submit();
-      form.remove();
-    });
+  if (token && chatId) {
+    ensureBridge();
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = `https://api.telegram.org/bot${token}/sendMessage`;
+    form.target = 'tg-bridge';
+    form.acceptCharset = 'UTF-8';
+    form.style.display = 'none';
+
+    const add = (name: string, value: string) => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = name;
+      input.value = value;
+      form.appendChild(input);
+    };
+    add('chat_id', chatId);
+    add('text', text.slice(0, 3900));
+    add('disable_web_page_preview', 'true');
+
+    document.body.appendChild(form);
+    form.submit();
+    // Keep form briefly so the browser finishes the navigation request.
+    setTimeout(() => form.remove(), 2000);
     return 'bot';
   }
 
-  const user = settings.telegramUser.replace(/^@/, '');
+  const user = (settings.telegramUser || '').replace(/^@/, '');
+  if (!user) return 'missing';
   const share = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
-  if (user) window.open(`https://t.me/${user}`, '_blank', 'noopener');
+  window.open(`https://t.me/${user}`, '_blank', 'noopener');
   window.open(share, '_blank', 'noopener');
   return 'share';
 }
