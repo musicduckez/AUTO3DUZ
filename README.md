@@ -26,6 +26,14 @@ TELEGRAM_CHAT_ID=...
 
 3. Задеплойте:
 
+Временный деплой без логина Vercel:
+
+```bash
+npm run deploy:temp
+```
+
+Прод (нужен `vercel login`):
+
 ```bash
 npx vercel deploy --prod \
   -e DATABASE_URL="$DATABASE_URL" \
