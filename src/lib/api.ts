@@ -101,3 +101,39 @@ export async function apiPatchOrder(
     body: JSON.stringify(patch),
   });
 }
+
+export async function apiStripeConfig() {
+  return request<{
+    ok: boolean;
+    configured: boolean;
+    publishableKey?: string;
+    currency?: string;
+    uzsPerUsd?: number;
+    sample?: { uzs: number; usd: number; cents: number };
+  }>('/api/stripe/config');
+}
+
+export async function apiStripeCheckout(code: string) {
+  return request<{
+    ok: boolean;
+    url?: string;
+    sessionId?: string;
+    amountUsd?: number;
+    amountUzs?: number;
+    rate?: number;
+    error?: string;
+  }>('/api/stripe/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
+export async function apiStripeConfirm(sessionId: string) {
+  return request<{
+    ok: boolean;
+    paid?: boolean;
+    order?: Order;
+    paymentStatus?: string;
+    error?: string;
+  }>(`/api/stripe/confirm?session_id=${encodeURIComponent(sessionId)}`);
+}

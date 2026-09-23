@@ -13,6 +13,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       db: rows[0]?.ok === 1,
       neon: Boolean(process.env.DATABASE_URL),
       telegram: Boolean(process.env.TELEGRAM_BOT_TOKEN && process.env.TELEGRAM_CHAT_ID),
+      stripe: Boolean(process.env.STRIPE_SECRET_KEY),
     });
   } catch (err) {
     json(res, 500, { ok: false, error: err instanceof Error ? err.message : String(err) });

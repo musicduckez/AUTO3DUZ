@@ -39,10 +39,19 @@ export async function ensureSchema() {
           receipt_data_url TEXT,
           receipt_file_name TEXT,
           receipt_uploaded_at BIGINT,
-          receipt_note TEXT
+          receipt_note TEXT,
+          payment_method TEXT,
+          stripe_session_id TEXT,
+          stripe_payment_intent TEXT,
+          paid_at BIGINT
         )
       `;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS payment_method TEXT`;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS stripe_session_id TEXT`;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS stripe_payment_intent TEXT`;
+      await db`ALTER TABLE orders ADD COLUMN IF NOT EXISTS paid_at BIGINT`;
       await db`CREATE INDEX IF NOT EXISTS orders_created_at_idx ON orders (created_at DESC)`;
+      await db`CREATE INDEX IF NOT EXISTS orders_stripe_session_idx ON orders (stripe_session_id)`;
       await db`
         INSERT INTO settings (id, data)
         VALUES (1, ${JSON.stringify(defaultSettings())}::jsonb)
@@ -87,6 +96,10 @@ export type DbOrder = {
   receipt_file_name: string | null;
   receipt_uploaded_at: string | number | null;
   receipt_note: string | null;
+  payment_method: string | null;
+  stripe_session_id: string | null;
+  stripe_payment_intent: string | null;
+  paid_at: string | number | null;
 };
 
 export function mapOrder(row: DbOrder) {
@@ -108,5 +121,32 @@ export function mapOrder(row: DbOrder) {
     receiptFileName: row.receipt_file_name || undefined,
     receiptUploadedAt: row.receipt_uploaded_at != null ? Number(row.receipt_uploaded_at) : undefined,
     receiptNote: row.receipt_note || undefined,
+    paymentMethod: row.payment_method || undefined,
+    stripeSessionId: row.stripe_session_id || undefined,
+    stripePaymentIntent: row.stripe_payment_intent || undefined,
+    paidAt: row.paid_at != null ? Number(row.paid_at) : undefined,
   };
+}
+
+export async function markOrderPaidByCode(
+  code: string,
+  payload: {
+    paymentMethod?: string;
+    stripeSessionId?: string | null;
+    stripePaymentIntent?: string | null;
+  },
+) {
+  const db = getSql();
+  const upper = code.toUpperCase();
+  await db`
+    UPDATE orders SET
+      status = 'paid',
+      payment_method = ${payload.paymentMethod || 'stripe'},
+      stripe_session_id = COALESCE(${payload.stripeSessionId || null}, stripe_session_id),
+      stripe_payment_intent = COALESCE(${payload.stripePaymentIntent || null}, stripe_payment_intent),
+      paid_at = COALESCE(paid_at, ${Date.now()})
+    WHERE UPPER(code) = ${upper}
+  `;
+  const rows = (await db`SELECT * FROM orders WHERE UPPER(code) = ${upper} LIMIT 1`) as DbOrder[];
+  return rows[0] ? mapOrder(rows[0]) : null;
 }

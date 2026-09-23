@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy temporary anonymous Vercel build with Neon/Telegram env from .env
+# Deploy temporary anonymous Vercel build with Neon/Telegram/Stripe env from .env
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -34,8 +34,12 @@ cfg["env"] = {
   "TELEGRAM_BOT_TOKEN": os.environ["TELEGRAM_BOT_TOKEN"],
   "TELEGRAM_CHAT_ID": os.environ["TELEGRAM_CHAT_ID"],
 }
+for key in ("STRIPE_SECRET_KEY", "STRIPE_PUBLISHABLE_KEY", "STRIPE_WEBHOOK_SECRET", "UZS_PER_USD", "PUBLIC_URL"):
+  val = os.environ.get(key, "").strip().strip("'").strip('"')
+  if val:
+    cfg["env"][key] = val
 Path("vercel.json").write_text(json.dumps(cfg, indent=2) + "\n")
-print("Injected env into vercel.json for deploy")
+print("Injected env into vercel.json for deploy:", sorted(cfg["env"]))
 PY
 
 cleanup() {
