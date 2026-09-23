@@ -34,8 +34,8 @@ const K = {
 };
 
 const defaultSettings: StoreSettings = {
-  telegramUser: 'nexus_pc_uz',
-  botToken: '',
+  telegramUser: 'nnexuspcbot',
+  botToken: '8911484992:AAEXEtySUph28YSA0OhdxFXQrbPrRlZGb7Y',
   chatId: '',
   card: '8600 **** **** 3141',
   click: '99890 123 45 67',
@@ -123,7 +123,15 @@ export const useShopStore = create<ShopState>((set, get) => ({
   products: mergeProducts(),
   games: mergeGames(),
   orders: loadJson<Order[]>(K.orders, []),
-  settings: { ...defaultSettings, ...loadJson<Partial<StoreSettings>>(K.settings, {}) },
+  settings: (() => {
+    const saved = loadJson<Partial<StoreSettings>>(K.settings, {});
+    return {
+      ...defaultSettings,
+      ...saved,
+      botToken: saved.botToken || defaultSettings.botToken,
+      telegramUser: saved.telegramUser || defaultSettings.telegramUser,
+    };
+  })(),
   cart: loadJson<CartItem[]>(K.cart, []),
   build: loadJson<BuildSlots>(K.build, {}),
   wishlist: loadJson<string[]>(K.wish, []),

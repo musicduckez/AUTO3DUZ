@@ -26,7 +26,7 @@ export function Footer() {
             {t('nav_track')}
           </Link>
         </div>
-        <p className="text-sm text-violet-200/60">Telegram: @nexus_pc_uz · UZS</p>
+        <p className="text-sm text-violet-200/60">Telegram: @nnexuspcbot · UZS</p>
       </div>
     </footer>
   );
