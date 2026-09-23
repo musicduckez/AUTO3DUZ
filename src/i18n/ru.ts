@@ -98,6 +98,8 @@ export const ru = {
   pay_stripe_ok: 'Stripe: оплата прошла',
   pay_stripe_cancel: 'Оплата Stripe отменена',
   pay_stripe_fail: 'Не удалось открыть Stripe',
+  pay_stripe_off: 'Stripe не подключён',
+  pay_stripe_setup: 'Нужен STRIPE_SECRET_KEY (sk_test_…) в env деплоя — после добавления ключа кнопка заработает.',
   pay_or_card: 'Или перевод на карту',
   confirm_payment: 'Подтвердить оплату',
   status_changed: 'Статус обновлён',

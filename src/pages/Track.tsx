@@ -193,25 +193,24 @@ export function Track() {
                 <p className="font-display text-2xl font-bold text-neon-300">{formatSom(order.total)}</p>
               </div>
 
-              {stripeOn && (
-                <div className="mb-5 rounded-2xl border border-sky-400/30 bg-sky-500/10 p-4">
-                  <p className="mb-1 font-semibold text-sky-100">{t('pay_stripe')}</p>
-                  <p className="mb-3 text-sm text-violet-200/70">{t('pay_stripe_hint')}</p>
-                  {usdHint && (
-                    <p className="mb-3 text-xs text-sky-200/80">
-                      {t('pay_stripe_usd')} {usdHint}
-                    </p>
-                  )}
-                  <button
-                    type="button"
-                    disabled={stripeBusy}
-                    onClick={() => void payStripe()}
-                    className="w-full rounded-2xl bg-sky-500 py-3 font-semibold text-slate-950 disabled:opacity-50"
-                  >
-                    {stripeBusy ? '…' : t('pay_stripe')}
-                  </button>
-                </div>
-              )}
+              <div className="mb-5 rounded-2xl border border-sky-400/30 bg-sky-500/10 p-4">
+                <p className="mb-1 font-semibold text-sky-100">{t('pay_stripe')}</p>
+                <p className="mb-3 text-sm text-violet-200/70">{t('pay_stripe_hint')}</p>
+                {usdHint && (
+                  <p className="mb-3 text-xs text-sky-200/80">
+                    {t('pay_stripe_usd')} {usdHint}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  disabled={stripeBusy || !stripeOn}
+                  onClick={() => void payStripe()}
+                  className="w-full rounded-2xl bg-sky-500 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {stripeBusy ? '…' : stripeOn ? t('pay_stripe') : t('pay_stripe_off')}
+                </button>
+                {!stripeOn && <p className="mt-2 text-xs text-amber-200/90">{t('pay_stripe_setup')}</p>}
+              </div>
 
               <p className="mb-3 text-sm font-semibold text-violet-100">{t('pay_or_card')}</p>
 

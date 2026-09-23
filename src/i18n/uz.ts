@@ -98,6 +98,8 @@ export const uz = {
   pay_stripe_ok: 'Stripe: to‘lov muvaffaqiyatli',
   pay_stripe_cancel: 'Stripe to‘lovi bekor qilindi',
   pay_stripe_fail: 'Stripe ochilmadi',
+  pay_stripe_off: 'Stripe ulanmagan',
+  pay_stripe_setup: 'Deploy env ga STRIPE_SECRET_KEY (sk_test_…) qo‘shing — keyin tugma ishlaydi.',
   pay_or_card: 'Yoki kartaga o‘tkazma',
   confirm_payment: 'To‘lovni tasdiqlash',
   status_changed: 'Holat yangilandi',
