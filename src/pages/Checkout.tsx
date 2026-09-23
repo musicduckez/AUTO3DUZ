@@ -16,6 +16,8 @@ export function Checkout() {
   const toast = useShopStore((s) => s.toast);
   const [cityId, setCityId] = useState(cities[0].id);
   const [done, setDone] = useState<string | null>(null);
+  const [sending, setSending] = useState(false);
+  const [tgStatus, setTgStatus] = useState<string>('');
   const city = cities.find((c) => c.id === cityId) ?? cities[0];
   const subtotal = cart.reduce((s, i) => s + (products.find((p) => p.id === i.productId)?.price ?? 0) * i.qty, 0);
   const total = subtotal + city.fee;
@@ -27,6 +29,7 @@ export function Checkout() {
         <p className="mt-2 text-violet-200/70">{t('order_code')}</p>
         <p className="font-display text-4xl text-neon-300">{done}</p>
         <p className="mt-3 text-sm">{t('track_hint')}</p>
+        {tgStatus && <p className="mt-3 text-sm text-neon-300">{tgStatus}</p>}
         <Link to={`/track/${done}`} className="mt-6 inline-block rounded-2xl bg-neon-600 px-5 py-3">
           {t('nav_track')}
         </Link>
@@ -50,34 +53,47 @@ export function Checkout() {
       className="mx-auto grid max-w-3xl gap-6"
       onSubmit={(e) => {
         e.preventDefault();
-        const fd = new FormData(e.currentTarget);
-        const name = String(fd.get('name') || '').trim();
-        const phone = String(fd.get('phone') || '').trim();
-        const telegram = String(fd.get('telegram') || '').trim();
-        const address = String(fd.get('address') || '').trim();
-        if (!name || !phone || !telegram || !address) {
-          toast(t('toast_err'), 'err');
-          return;
-        }
-        const order = placeOrder({
-          name,
-          phone,
-          telegram,
-          city: city.name[lang],
-          address,
-          comment: String(fd.get('comment') || ''),
-          delivery: city.fee,
-          total,
-        });
-        const text = orderMessage(order, products, lang);
-        // Always read latest settings (not a stale render closure).
-        const live = useShopStore.getState().settings;
-        const mode = sendTelegram(live, text);
-        clearCart();
-        if (mode === 'bot') toast(`${t('toast_order')} → Telegram`);
-        else if (mode === 'share') toast(t('toast_order'), 'info');
-        else toast('Telegram не настроен: нет chat_id', 'err');
-        setDone(order.code);
+        void (async () => {
+          const fd = new FormData(e.currentTarget);
+          const name = String(fd.get('name') || '').trim();
+          const phone = String(fd.get('phone') || '').trim();
+          const telegram = String(fd.get('telegram') || '').trim();
+          const address = String(fd.get('address') || '').trim();
+          if (!name || !phone || !telegram || !address) {
+            toast(t('toast_err'), 'err');
+            return;
+          }
+          setSending(true);
+          const order = placeOrder({
+            name,
+            phone,
+            telegram,
+            city: city.name[lang],
+            address,
+            comment: String(fd.get('comment') || ''),
+            delivery: city.fee,
+            total,
+          });
+          const text = orderMessage(order, products, lang);
+          const live = useShopStore.getState().settings;
+          const mode = await sendTelegram(live, text);
+          clearCart();
+          if (mode === 'bot') {
+            toast(`${t('toast_order')} → Telegram`);
+            setTgStatus('Отправлено в Telegram ✅');
+          } else if (mode === 'share') {
+            toast(t('toast_order'), 'info');
+            setTgStatus('Открыт Telegram share (бот не настроен)');
+          } else if (mode === 'missing') {
+            toast('Telegram не настроен: нет chat_id', 'err');
+            setTgStatus('Ошибка: нет chat_id');
+          } else {
+            toast('Не удалось отправить в Telegram', 'err');
+            setTgStatus('Ошибка отправки в Telegram');
+          }
+          setDone(order.code);
+          setSending(false);
+        })();
       }}
     >
       <h1 className="font-display text-4xl font-bold">{t('checkout_title')}</h1>
@@ -104,7 +120,9 @@ export function Checkout() {
           {t('total')}: {formatSom(total)}
         </p>
       </div>
-      <button className="rounded-2xl bg-neon-600 py-3 font-semibold">{t('pay_tg')}</button>
+      <button disabled={sending} className="rounded-2xl bg-neon-600 py-3 font-semibold disabled:opacity-60">
+        {sending ? '…' : t('pay_tg')}
+      </button>
     </form>
   );
 }

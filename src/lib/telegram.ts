@@ -35,42 +35,50 @@ function ensureBridge() {
   return iframe;
 }
 
-/** Sends order text to Telegram. Returns 'bot' | 'share' | 'missing'. */
-export function sendTelegram(settings: StoreSettings, text: string): 'bot' | 'share' | 'missing' {
+export type TgSendResult = 'bot' | 'share' | 'missing' | 'error';
+
+/**
+ * Prefer same-origin Vite proxy (/api/telegram-send).
+ * Fallback: iframe GET to Telegram API (may be blocked by some browsers).
+ */
+export async function sendTelegram(settings: StoreSettings, text: string): Promise<TgSendResult> {
   const token = (settings.botToken || '').trim();
   const chatId = String(settings.chatId || '').trim();
+  const payload = text.slice(0, 3900);
 
   if (token && chatId) {
-    ensureBridge();
-    const form = document.createElement('form');
-    form.method = 'POST';
-    form.action = `https://api.telegram.org/bot${token}/sendMessage`;
-    form.target = 'tg-bridge';
-    form.acceptCharset = 'UTF-8';
-    form.style.display = 'none';
+    try {
+      const res = await fetch('/api/telegram-send', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ botToken: token, chatId, text: payload }),
+      });
+      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; description?: string };
+      if (res.ok && data.ok) return 'bot';
 
-    const add = (name: string, value: string) => {
-      const input = document.createElement('input');
-      input.type = 'hidden';
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    };
-    add('chat_id', chatId);
-    add('text', text.slice(0, 3900));
-    add('disable_web_page_preview', 'true');
-
-    document.body.appendChild(form);
-    form.submit();
-    // Keep form briefly so the browser finishes the navigation request.
-    setTimeout(() => form.remove(), 2000);
-    return 'bot';
+      // Fallback if proxy is unavailable (e.g. static preview).
+      const iframe = ensureBridge();
+      const url =
+        `https://api.telegram.org/bot${token}/sendMessage` +
+        `?chat_id=${encodeURIComponent(chatId)}` +
+        `&text=${encodeURIComponent(payload)}`;
+      iframe.src = url;
+      console.warn('Telegram proxy failed, used iframe fallback', data.description || res.status);
+      return res.ok ? 'bot' : 'error';
+    } catch (err) {
+      console.error('Telegram send failed', err);
+      const iframe = ensureBridge();
+      iframe.src =
+        `https://api.telegram.org/bot${token}/sendMessage` +
+        `?chat_id=${encodeURIComponent(chatId)}` +
+        `&text=${encodeURIComponent(payload)}`;
+      return 'error';
+    }
   }
 
   const user = (settings.telegramUser || '').replace(/^@/, '');
   if (!user) return 'missing';
-  const share = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   window.open(`https://t.me/${user}`, '_blank', 'noopener');
-  window.open(share, '_blank', 'noopener');
+  window.open(`https://t.me/share/url?text=${encodeURIComponent(payload)}`, '_blank', 'noopener');
   return 'share';
 }
