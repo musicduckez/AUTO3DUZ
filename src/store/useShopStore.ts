@@ -16,6 +16,15 @@ import type {
   ToastItem,
   ViewMode,
 } from '../types';
+import {
+  createOrderRemote,
+  detectBackend,
+  fetchOrderByCode,
+  patchOrderRemote,
+  saveSettingsRemote,
+  syncOrdersFromApi,
+  syncSettingsFromApi,
+} from '../lib/backend';
 import { sha256, DEFAULT_PASSWORD } from '../lib/hash';
 import { loadJson, saveJson } from '../lib/storage';
 import { partById } from '../lib/compatibility';
@@ -114,12 +123,27 @@ interface ShopState {
   saveProducts: (products: Product[]) => void;
   saveGames: (games: Game[]) => void;
   saveSettings: (s: Partial<StoreSettings>) => void;
-  placeOrder: (payload: Omit<Order, 'id' | 'code' | 'createdAt' | 'status' | 'items' | 'total'> & { total: number; items?: CartItem[] }) => Order;
-  setOrderStatus: (id: string, status: OrderStatus) => void;
+  backendReady: boolean;
+  backendMode: 'api' | 'local' | 'unknown';
+  hydrateBackend: () => Promise<void>;
+  refreshOrders: () => Promise<void>;
+  loadOrderByCode: (code: string) => Promise<Order | null>;
+  placeOrder: (
+    payload: Omit<Order, 'id' | 'code' | 'createdAt' | 'status' | 'items' | 'total'> & {
+      total: number;
+      items?: CartItem[];
+      itemMeta?: Array<{ productId: string; qty: number; title?: string; price?: number }>;
+    },
+  ) => Promise<{ order: Order; telegram?: { status: string; detail?: string }; usedApi: boolean }>;
+  setOrderStatus: (
+    id: string,
+    status: OrderStatus,
+    notifyText?: string,
+  ) => Promise<{ telegram?: { status: string; detail?: string } }>;
   attachReceipt: (
     code: string,
-    payload: { dataUrl: string; fileName: string; note?: string },
-  ) => Order | null;
+    payload: { dataUrl: string; fileName: string; note?: string; sendTelegram?: boolean },
+  ) => Promise<{ order: Order | null; telegram?: { status: string; detail?: string } }>;
   tryLogin: (password: string) => Promise<'ok' | 'bad' | 'lock'>;
   changePassword: (password: string) => Promise<void>;
   logoutAdmin: () => void;
@@ -159,6 +183,32 @@ export const useShopStore = create<ShopState>((set, get) => ({
   adminAuthed: sessionStorage.getItem('nexus_admin') === '1',
   loginFails: 0,
   lockUntil: 0,
+  backendReady: false,
+  backendMode: 'unknown',
+
+  hydrateBackend: async () => {
+    const mode = await detectBackend();
+    let settings = get().settings;
+    let orders = get().orders;
+    if (mode === 'api') {
+      settings = await syncSettingsFromApi(settings);
+      const remoteOrders = await syncOrdersFromApi();
+      if (remoteOrders) orders = remoteOrders;
+    }
+    set({ backendReady: true, backendMode: mode, settings, orders });
+  },
+  refreshOrders: async () => {
+    const remote = await syncOrdersFromApi();
+    if (remote) set({ orders: remote });
+  },
+  loadOrderByCode: async (code) => {
+    const order = await fetchOrderByCode(code, get().orders);
+    if (order) {
+      const orders = [order, ...get().orders.filter((o) => o.code.toUpperCase() !== order.code.toUpperCase())];
+      set({ orders });
+    }
+    return order;
+  },
 
   setLang: (lang) => {
     localStorage.setItem('nexus_lang', lang);
@@ -260,8 +310,9 @@ export const useShopStore = create<ShopState>((set, get) => ({
     const settings = { ...get().settings, ...patch };
     saveJson(K.settings, settings);
     set({ settings });
+    void saveSettingsRemote(patch);
   },
-  placeOrder: (payload) => {
+  placeOrder: async (payload) => {
     const items = payload.items ?? get().cart;
     const order: Order = {
       id: toastId() + Date.now().toString(36),
@@ -278,35 +329,71 @@ export const useShopStore = create<ShopState>((set, get) => ({
       total: payload.total,
       delivery: payload.delivery,
     };
-    const orders = [order, ...get().orders];
+    const remote = await createOrderRemote(order, payload.itemMeta ?? items);
+    const saved = remote.order;
+    const orders = [saved, ...get().orders.filter((o) => o.id !== saved.id && o.code !== saved.code)];
     saveJson(K.orders, orders);
     set({ orders });
-    return order;
+    return remote;
   },
-  setOrderStatus: (id, status) => {
+  setOrderStatus: async (id, status, notifyText) => {
+    const current = get().orders.find((o) => o.id === id);
     const orders = get().orders.map((o) => (o.id === id ? { ...o, status } : o));
     saveJson(K.orders, orders);
     set({ orders });
+    if (current) {
+      const remote = await patchOrderRemote(current.code, {
+        status,
+        notify: Boolean(notifyText),
+        notifyText,
+      });
+      if (remote.order) {
+        set({
+          orders: get().orders.map((o) => (o.id === remote.order!.id ? remote.order! : o)),
+        });
+      }
+      return { telegram: remote.telegram };
+    }
+    return {};
   },
-  attachReceipt: (code, payload) => {
+  attachReceipt: async (code, payload) => {
     let updated: Order | null = null;
     const orders = get().orders.map((o) => {
       if (o.code.toUpperCase() !== code.toUpperCase()) return o;
-      updated = {
+      const next: Order = {
         ...o,
-        status: o.status === 'paid' || o.status === 'done' || o.status === 'shipped' || o.status === 'assembling'
-          ? o.status
-          : 'awaiting_payment',
+        status:
+          o.status === 'paid' || o.status === 'done' || o.status === 'shipped' || o.status === 'assembling'
+            ? o.status
+            : 'awaiting_payment',
         receiptDataUrl: payload.dataUrl,
         receiptFileName: payload.fileName,
         receiptUploadedAt: Date.now(),
         receiptNote: payload.note || o.receiptNote,
       };
-      return updated;
+      updated = next;
+      return next;
     });
     saveJson(K.orders, orders);
     set({ orders });
-    return updated;
+
+    const statusForPatch = updated ? (updated as Order).status : undefined;
+    const remote = await patchOrderRemote(code, {
+      receiptDataUrl: payload.dataUrl,
+      receiptFileName: payload.fileName,
+      receiptNote: payload.note,
+      sendReceiptToTelegram: payload.sendTelegram !== false,
+      status: statusForPatch,
+    });
+    if (remote.order) {
+      set({
+        orders: get().orders.map((o) =>
+          o.code.toUpperCase() === remote.order!.code.toUpperCase() ? remote.order! : o,
+        ),
+      });
+      return { order: remote.order, telegram: remote.telegram };
+    }
+    return { order: updated };
   },
   tryLogin: async (password) => {
     if (Date.now() < get().lockUntil) return 'lock';

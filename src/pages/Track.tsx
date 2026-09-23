@@ -53,10 +53,12 @@ export function Track() {
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [msg, setMsg] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const orders = useShopStore((s) => s.orders);
   const settings = useShopStore((s) => s.settings);
   const attachReceipt = useShopStore((s) => s.attachReceipt);
+  const loadOrderByCode = useShopStore((s) => s.loadOrderByCode);
   const toast = useShopStore((s) => s.toast);
   const order = orders.find((o) => o.code.toUpperCase() === query.toUpperCase());
   const canPay = order && ['new', 'confirmed', 'awaiting_payment'].includes(order.status);
@@ -67,6 +69,12 @@ export function Track() {
       setQuery(codeParam);
     }
   }, [codeParam]);
+
+  useEffect(() => {
+    if (!query) return;
+    setLoading(true);
+    void loadOrderByCode(query).finally(() => setLoading(false));
+  }, [query, loadOrderByCode]);
 
   const copyCard = async () => {
     try {
@@ -93,7 +101,8 @@ export function Track() {
           {t('track_btn')}
         </button>
       </div>
-      {query && !order && <p>{t('not_found')}</p>}
+      {query && loading && <p>…</p>}
+      {query && !loading && !order && <p>{t('not_found')}</p>}
       {order && (
         <div className="glass space-y-5 rounded-3xl p-6">
           <div>
@@ -185,21 +194,25 @@ export function Track() {
                     if (!preview) return;
                     void (async () => {
                       setBusy(true);
-                      const updated = attachReceipt(order.code, {
+                      const result = await attachReceipt(order.code, {
                         dataUrl: preview,
                         fileName: fileName || 'receipt.jpg',
                         note,
+                        sendTelegram: true,
                       });
-                      if (!updated) {
+                      if (!result.order) {
                         setBusy(false);
                         toast(t('not_found'), 'err');
                         return;
                       }
-                      const tg = await sendTelegramPhoto(settings, {
-                        dataUrl: preview,
-                        fileName: fileName || 'receipt.jpg',
-                        caption: paymentCaption(updated, note),
-                      });
+                      let tg = result.telegram;
+                      if (!tg || tg.status !== 'bot') {
+                        tg = await sendTelegramPhoto(settings, {
+                          dataUrl: preview,
+                          fileName: fileName || 'receipt.jpg',
+                          caption: paymentCaption(result.order, note),
+                        });
+                      }
                       setBusy(false);
                       if (tg.status === 'bot') {
                         setMsg(t('receipt_sent'));

@@ -14,6 +14,7 @@ export function Checkout() {
   const placeOrder = useShopStore((s) => s.placeOrder);
   const clearCart = useShopStore((s) => s.clearCart);
   const toast = useShopStore((s) => s.toast);
+  const backendMode = useShopStore((s) => s.backendMode);
   const [cityId, setCityId] = useState(cities[0].id);
   const [done, setDone] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -68,7 +69,16 @@ export function Checkout() {
             return;
           }
           setSending(true);
-          const order = placeOrder({
+          const itemMeta = cart.map((it) => {
+            const p = products.find((x) => x.id === it.productId);
+            return {
+              productId: it.productId,
+              qty: it.qty,
+              title: p ? p.name[lang] : it.productId,
+              price: p?.price ?? 0,
+            };
+          });
+          const placed = await placeOrder({
             name,
             phone,
             telegram,
@@ -77,23 +87,27 @@ export function Checkout() {
             comment: String(fd.get('comment') || ''),
             delivery: city.fee,
             total,
+            itemMeta,
           });
-          const text = orderMessage(order, products, lang);
-          const live = useShopStore.getState().settings;
-          const result = await sendTelegram(live, text);
+          const order = placed.order;
           clearCart();
-          if (result.status === 'bot') {
-            toast(`${t('toast_order')} → Telegram`);
+
+          let result = placed.telegram;
+          if (!placed.usedApi || !result || result.status !== 'bot') {
+            const text = orderMessage(order, products, lang);
+            const live = useShopStore.getState().settings;
+            result = await sendTelegram(live, text);
+          }
+
+          if (result?.status === 'bot') {
+            toast(`${t('toast_order')} → Telegram${backendMode === 'api' ? ' · Neon' : ''}`);
             setTgStatus('Отправлено в Telegram ✅');
-          } else if (result.status === 'share') {
+          } else if (result?.status === 'share') {
             toast(t('toast_order'), 'info');
             setTgStatus('Открыт Telegram share (бот не настроен)');
-          } else if (result.status === 'missing') {
-            toast('Telegram не настроен: нет chat_id', 'err');
-            setTgStatus('Ошибка: нет chat_id');
           } else {
-            toast(`Telegram: ${result.detail || 'ошибка'}`, 'err');
-            setTgStatus(`Ошибка: ${result.detail || 'не удалось отправить'}`);
+            toast(`Telegram: ${result?.detail || 'ошибка'}`, 'err');
+            setTgStatus(`Ошибка: ${result?.detail || 'не удалось отправить'}`);
           }
           setDone(order.code);
           setSending(false);
