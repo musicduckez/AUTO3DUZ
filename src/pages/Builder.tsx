@@ -6,6 +6,7 @@ import { FpsPanel } from '../components/builder/FpsPanel';
 import { Schematic } from '../components/builder/Schematic';
 import { SlotPicker } from '../components/builder/SlotPicker';
 import { View2D } from '../components/builder/View2D';
+import { ErrorBoundary } from '../components/ui/ErrorBoundary';
 
 const View3D = lazy(() => import('../components/builder/View3D').then((m) => ({ default: m.View3D })));
 import { readyBuilds } from '../data/builds';
@@ -74,9 +75,13 @@ export function Builder() {
         <div>
           {viewMode === '2d' && <View2D />}
           {viewMode === '3d' && (
-            <Suspense fallback={<div className="grid h-[420px] place-items-center rounded-3xl bg-black">3D…</div>}>
-              <View3D />
-            </Suspense>
+            <ErrorBoundary
+              fallback={<div className="grid h-[420px] place-items-center rounded-3xl bg-black text-sm text-violet-200/70">3D недоступен</div>}
+            >
+              <Suspense fallback={<div className="grid h-[420px] place-items-center rounded-3xl bg-black">3D…</div>}>
+                <View3D />
+              </Suspense>
+            </ErrorBoundary>
           )}
           {viewMode === 'schematic' && <Schematic />}
           <div className="no-print mt-4 flex flex-wrap items-center gap-2">

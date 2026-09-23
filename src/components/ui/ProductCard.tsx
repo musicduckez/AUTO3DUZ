@@ -1,4 +1,17 @@
-import { Heart, Layers, ShoppingCart, Cpu } from 'lucide-react';
+import { Box, CircuitBoard, Cpu, Fan, HardDrive, Heart, Layers, MemoryStick, ShoppingCart, Zap } from 'lucide-react';
+import type { Category } from '../../types';
+
+const icons: Record<Category, typeof Cpu> = {
+  cpu: Cpu,
+  gpu: CircuitBoard,
+  mb: CircuitBoard,
+  ram: MemoryStick,
+  storage: HardDrive,
+  psu: Zap,
+  case: Box,
+  cooler: Fan,
+  fan: Fan,
+};
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 import { formatSom } from '../../lib/currency';
@@ -15,7 +28,10 @@ export function ProductThumb({ product, className = '' }: { product: Product; cl
     >
       <div className="absolute inset-0 opacity-40 bg-[radial-gradient(circle_at_30%_20%,white,transparent_35%)]" />
       <div className="relative grid h-full place-items-center p-6">
-        <Cpu className="h-16 w-16 text-white/80" />
+        {(() => {
+          const Icon = icons[product.category] ?? Cpu;
+          return <Icon className="h-16 w-16 text-white/80" />;
+        })()}
         <span className="mt-2 text-xs uppercase tracking-[0.2em] text-white/70">{product.category}</span>
       </div>
     </div>

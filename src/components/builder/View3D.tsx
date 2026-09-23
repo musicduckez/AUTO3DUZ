@@ -38,13 +38,16 @@ function Scene() {
 
   return (
     <>
-      <ambientLight intensity={0.45} />
-      <spotLight position={[6, 8, 6]} angle={0.4} penumbra={0.6} intensity={2} castShadow />
-      <pointLight position={[-4, 3, -2]} intensity={0.8} color={color} />
-      <Box pos={[0, 0, 0]} size={[3.2, 4.2, 1.8]} color={color} />
-      <mesh position={[1.62, 0, 0]}>
-        <boxGeometry args={[0.04, 3.9, 1.6]} />
-        <meshPhysicalMaterial color="#c4b5fd" transparent opacity={0.18} roughness={0} transmission={0.9} />
+      <ambientLight intensity={0.55} />
+      <spotLight position={[6, 8, 6]} angle={0.4} penumbra={0.6} intensity={2.2} castShadow />
+      <pointLight position={[-4, 3, -2]} intensity={1} color={color} />
+      <Box pos={[0, -2.05, 0]} size={[3.2, 0.08, 1.8]} color={color} />
+      <Box pos={[0, 2.05, 0]} size={[3.2, 0.08, 1.8]} color={color} />
+      <Box pos={[-1.56, 0, 0]} size={[0.08, 4.1, 1.8]} color={color} />
+      <Box pos={[0, 0, -0.86]} size={[3.2, 4.1, 0.08]} color="#1e1033" />
+      <mesh position={[1.58, 0, 0]}>
+        <boxGeometry args={[0.03, 3.95, 1.65]} />
+        <meshPhysicalMaterial color="#c4b5fd" transparent opacity={0.12} roughness={0} transmission={0.85} />
       </mesh>
       {parts.mb && (
         <mesh position={[-0.15, 0.15, -0.55]} onClick={() => pick('mb')}>
@@ -86,10 +89,26 @@ function Scene() {
   );
 }
 
+function webglOk() {
+  try {
+    const c = document.createElement('canvas');
+    return Boolean(c.getContext('webgl2') || c.getContext('webgl'));
+  } catch {
+    return false;
+  }
+}
+
 export function View3D() {
+  if (!webglOk()) {
+    return (
+      <div className="grid h-[420px] place-items-center rounded-3xl bg-black text-sm text-violet-200/70">
+        WebGL недоступен — откройте 2D или схему
+      </div>
+    );
+  }
   return (
     <div className="h-[420px] overflow-hidden rounded-3xl bg-black">
-      <Canvas shadows camera={{ position: [5.2, 2.4, 4.4], fov: 45 }}>
+      <Canvas shadows camera={{ position: [5.2, 2.4, 4.4], fov: 45 }} gl={{ antialias: true, failIfMajorPerformanceCaveat: false }}>
         <Scene />
       </Canvas>
     </div>

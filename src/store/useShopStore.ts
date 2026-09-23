@@ -130,7 +130,7 @@ export const useShopStore = create<ShopState>((set, get) => ({
   compare: loadJson<string[]>(K.compare, []),
   recent: loadJson<string[]>(K.recent, []),
   caseColor: loadJson<string>(K.color, '#7c3aed'),
-  viewMode: '3d',
+  viewMode: '2d',
   fpsPreset: 'ultra',
   fpsRes: '1080p',
   toasts: [],

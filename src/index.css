@@ -19,13 +19,20 @@ body {
     radial-gradient(800px 420px at 110% 10%, rgba(168, 85, 247, 0.18), transparent 50%),
     #0b0614;
   color: #f5f3ff;
-  font-family: Outfit, system-ui, sans-serif;
+  font-family: Inter, Montserrat, system-ui, sans-serif;
+  line-height: 1.5;
 }
 
 .glass {
   background: rgba(20, 10, 40, 0.62);
   border: 1px solid rgba(196, 135, 255, 0.16);
   backdrop-filter: blur(16px);
+}
+
+h1,
+h2,
+.font-display {
+  letter-spacing: 0.01em;
 }
 
 .glow-text {

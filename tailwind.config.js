@@ -19,8 +19,8 @@ export default {
         },
       },
       fontFamily: {
-        sans: ['Outfit', 'system-ui', 'sans-serif'],
-        display: ['Montserrat', 'Outfit', 'sans-serif'],
+        sans: ['Inter', 'Montserrat', 'system-ui', 'sans-serif'],
+        display: ['Montserrat', 'Inter', 'sans-serif'],
       },
       boxShadow: {
         glow: '0 0 40px rgba(168, 85, 247, 0.25)',

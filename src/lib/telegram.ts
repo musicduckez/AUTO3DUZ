@@ -44,9 +44,10 @@ export function sendTelegram(settings: StoreSettings, text: string) {
     return 'bot';
   }
   const user = settings.telegramUser.replace(/^@/, '');
+  const share = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
   if (user) {
-    window.open(`https://t.me/${user}`, '_blank');
+    window.open(`https://t.me/${user}`, '_blank', 'noopener');
   }
-  window.open(`https://t.me/share/url?text=${encodeURIComponent(text)}`, '_blank');
+  window.open(share, '_blank', 'noopener');
   return 'share';
 }
