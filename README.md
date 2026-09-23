@@ -49,6 +49,8 @@ API routes:
 | GET/PUT | `/api/settings` | реквизиты / промо |
 | GET/POST | `/api/orders` | список / создание заказа |
 | GET/PATCH | `/api/orders/:code` | трекинг / статус / чек |
+| POST | `/api/telegram-send` | прокси текста в бот |
+| POST | `/api/telegram-photo` | прокси чека в бот |
 | GET | `/api/stripe/config` | доступность Stripe + курс UZS→USD |
 | POST | `/api/stripe/checkout` | создать Checkout Session по коду заказа |
 | GET | `/api/stripe/confirm` | подтвердить оплату после возврата со Stripe |
@@ -57,6 +59,8 @@ API routes:
 Оплата: **Stripe Checkout** (карта, USD; so'm конвертируется по `UZS_PER_USD`, по умолчанию 12500) или перевод на локальную карту + чек.
 
 Env для Stripe: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, опционально `STRIPE_WEBHOOK_SECRET`, `UZS_PER_USD`, `PUBLIC_URL`.
+
+Схема: `scripts/schema.sql` (применяется автоматически при первом запросе).
 
 ## Скрытая админка
 
@@ -70,4 +74,4 @@ Env для Stripe: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, опциона
 
 На проде токен и `chat_id` задаются через env Vercel. В админке можно переопределить.
 
-После оформления заказ пишется в Neon и уходит в Telegram. Клиент оплачивает на карту и загружает чек на `/track/:code`.
+После оформления заказ пишется в Neon и уходит в Telegram. Клиент оплачивает через **Stripe** или переводом на карту (+ чек) на `/track/:code`.
