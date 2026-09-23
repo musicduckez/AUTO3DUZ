@@ -1,0 +1,68 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(124, 58, 237, 0.28), transparent 55%),
+    radial-gradient(800px 420px at 110% 10%, rgba(168, 85, 247, 0.18), transparent 50%),
+    #0b0614;
+  color: #f5f3ff;
+  font-family: Outfit, system-ui, sans-serif;
+}
+
+.glass {
+  background: rgba(20, 10, 40, 0.62);
+  border: 1px solid rgba(196, 135, 255, 0.16);
+  backdrop-filter: blur(16px);
+}
+
+.glow-text {
+  background: linear-gradient(90deg, #e9d5ff, #a855f7, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.card-tilt {
+  transform: perspective(800px) rotateX(var(--rx, 0)) rotateY(var(--ry, 0));
+  transition: transform 0.15s ease;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #5b21b6;
+  border-radius: 99px;
+}
+
+::selection {
+  background: #7c3aed;
+  color: white;
+}
+
+@media print {
+  header,
+  footer,
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: white;
+    color: black;
+  }
+}
