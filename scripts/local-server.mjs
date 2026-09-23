@@ -77,6 +77,18 @@ const routes = [
     match: (url) => (url === '/api/stripe/webhook' ? {} : null),
     load: () => import('../api/stripe/webhook.ts'),
   },
+  {
+    match: (url) => (url === '/api/payme/config' ? {} : null),
+    load: () => import('../api/payme/config.ts'),
+  },
+  {
+    match: (url) => (url === '/api/payme/checkout' ? {} : null),
+    load: () => import('../api/payme/checkout.ts'),
+  },
+  {
+    match: (url) => (url === '/api/payme' || url === '/api/payme/' ? {} : null),
+    load: () => import('../api/payme/index.ts'),
+  },
 ];
 
 function readBody(req) {

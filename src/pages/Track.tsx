@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useSearchParams } from 'react-router-dom';
-import { apiStripeCheckout, apiStripeConfig, apiStripeConfirm } from '../lib/api';
+import { apiPaymeCheckout, apiPaymeConfig, apiStripeCheckout, apiStripeConfig, apiStripeConfirm } from '../lib/api';
 import { formatSom } from '../lib/currency';
 import { paymentCaption, sendTelegramPhoto } from '../lib/telegram';
 import { useShopStore } from '../store/useShopStore';
@@ -54,10 +54,12 @@ export function Track() {
   const [fileName, setFileName] = useState('');
   const [busy, setBusy] = useState(false);
   const [stripeBusy, setStripeBusy] = useState(false);
+  const [paymeBusy, setPaymeBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
   const [stripeOn, setStripeOn] = useState(false);
+  const [paymeOn, setPaymeOn] = useState(false);
   const [usdHint, setUsdHint] = useState<string>('');
 
   const orders = useShopStore((s) => s.orders);
@@ -88,6 +90,10 @@ export function Track() {
       if (res.data.sample) {
         setUsdHint(`$${res.data.sample.usd.toFixed(2)} / ${res.data.uzsPerUsd?.toLocaleString('ru-RU')} so'm`);
       }
+    });
+    void apiPaymeConfig().then((res) => {
+      if (!res.ok) return;
+      setPaymeOn(Boolean(res.data.configured));
     });
   }, []);
 
@@ -121,6 +127,17 @@ export function Track() {
     }
   }, [searchParams, setSearchParams, toast, t, loadOrderByCode]);
 
+  useEffect(() => {
+    const payme = searchParams.get('payme');
+    if (payme !== 'return' || !query) return;
+    setSearchParams({}, { replace: true });
+    void (async () => {
+      await loadOrderByCode(query);
+      toast(t('pay_payme_ok'), 'info');
+      setMsg(t('pay_payme_ok'));
+    })();
+  }, [searchParams, setSearchParams, query, loadOrderByCode, toast, t]);
+
   const copyCard = async () => {
     try {
       await navigator.clipboard.writeText(settings.card.replace(/\s/g, ''));
@@ -142,6 +159,21 @@ export function Track() {
       return;
     }
     const err = res.ok ? res.data.error || t('pay_stripe_fail') : res.error;
+    toast(err, 'err');
+    setMsg(err);
+  };
+
+  const payPayme = async () => {
+    if (!order) return;
+    setPaymeBusy(true);
+    const lang = (document.documentElement.lang === 'uz' ? 'uz' : 'ru') as 'ru' | 'uz';
+    const res = await apiPaymeCheckout(order.code, lang);
+    setPaymeBusy(false);
+    if (res.ok && res.data.url) {
+      window.location.href = res.data.url;
+      return;
+    }
+    const err = res.ok ? res.data.error || t('pay_payme_fail') : res.error;
     toast(err, 'err');
     setMsg(err);
   };
@@ -210,6 +242,20 @@ export function Track() {
                   {stripeBusy ? '…' : stripeOn ? t('pay_stripe') : t('pay_stripe_off')}
                 </button>
                 {!stripeOn && <p className="mt-2 text-xs text-amber-200/90">{t('pay_stripe_setup')}</p>}
+              </div>
+
+              <div className="mb-5 rounded-2xl border border-emerald-400/30 bg-emerald-500/10 p-4">
+                <p className="mb-1 font-semibold text-emerald-100">{t('pay_payme')}</p>
+                <p className="mb-3 text-sm text-violet-200/70">{t('pay_payme_hint')}</p>
+                <button
+                  type="button"
+                  disabled={paymeBusy || !paymeOn}
+                  onClick={() => void payPayme()}
+                  className="w-full rounded-2xl bg-emerald-500 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {paymeBusy ? '…' : paymeOn ? t('pay_payme') : t('pay_payme_off')}
+                </button>
+                {!paymeOn && <p className="mt-2 text-xs text-amber-200/90">{t('pay_payme_setup')}</p>}
               </div>
 
               <p className="mb-3 text-sm font-semibold text-violet-100">{t('pay_or_card')}</p>

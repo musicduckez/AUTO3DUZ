@@ -58,9 +58,13 @@ API routes:
 
 Оплата: **Stripe Checkout** (карта, USD; so'm конвертируется по `UZS_PER_USD`, по умолчанию 12500) или перевод на локальную карту + чек.
 
-Env для Stripe: `STRIPE_SECRET_KEY`, `STRIPE_PUBLISHABLE_KEY`, опционально `STRIPE_WEBHOOK_SECRET`, `UZS_PER_USD`, `PUBLIC_URL`.
+| GET | `/api/payme/config` | доступность Payme |
+| POST | `/api/payme/checkout` | ссылка на оплату Payme по коду заказа |
+| POST | `/api/payme` | Merchant API callback (JSON-RPC) |
 
-Схема: `scripts/schema.sql` (применяется автоматически при первом запросе).
+Оплата: **Stripe** (USD), **Payme** (so'm / tiyin), или перевод на локальную карту + чек.
+
+Env для Payme: `PAYME_MERCHANT_ID`, `PAYME_MERCHANT_KEY`, опционально `PAYME_TEST=1` (sandbox `test.paycom.uz`), `PAYME_LOGIN` (по умолчанию `Paycom`). В кабинете Payme Business укажите Endpoint URL: `https://YOUR_HOST/api/payme`, поле аккаунта: `order_id`.
 
 ## Скрытая админка
 
