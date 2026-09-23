@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { defaultSettings, ensureSchema, getSql } from './_lib/db';
-import { handleOptions, json, methodNotAllowed, readBody } from './_lib/http';
+import { defaultSettings, ensureSchema, getSql } from './_lib/db.js';
+import { handleOptions, json, methodNotAllowed, readBody } from './_lib/http.js';
 
 function publicSettings(data: Record<string, unknown>) {
   const { botToken: _t, passwordHash: _p, ...rest } = data;

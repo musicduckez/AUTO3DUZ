@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { ensureSchema, getSql, mapOrder, type DbOrder } from '../_lib/db';
-import { handleOptions, json, methodNotAllowed, readBody } from '../_lib/http';
-import { formatOrderMessage, sendTelegramMessage } from '../_lib/telegram';
+import { ensureSchema, getSql, mapOrder, type DbOrder } from '../_lib/db.js';
+import { handleOptions, json, methodNotAllowed, readBody } from '../_lib/http.js';
+import { formatOrderMessage, sendTelegramMessage } from '../_lib/telegram.js';
 
 function orderCode() {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';

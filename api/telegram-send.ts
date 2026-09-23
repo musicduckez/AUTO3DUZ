@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { handleOptions, json, methodNotAllowed, readBody } from './_lib/http';
-import { sendTelegramMessage } from './_lib/telegram';
+import { handleOptions, json, methodNotAllowed, readBody } from './_lib/http.js';
+import { sendTelegramMessage } from './_lib/telegram.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (handleOptions(req, res)) return;
