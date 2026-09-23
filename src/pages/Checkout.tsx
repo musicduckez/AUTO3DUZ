@@ -76,20 +76,20 @@ export function Checkout() {
           });
           const text = orderMessage(order, products, lang);
           const live = useShopStore.getState().settings;
-          const mode = await sendTelegram(live, text);
+          const result = await sendTelegram(live, text);
           clearCart();
-          if (mode === 'bot') {
+          if (result.status === 'bot') {
             toast(`${t('toast_order')} → Telegram`);
             setTgStatus('Отправлено в Telegram ✅');
-          } else if (mode === 'share') {
+          } else if (result.status === 'share') {
             toast(t('toast_order'), 'info');
             setTgStatus('Открыт Telegram share (бот не настроен)');
-          } else if (mode === 'missing') {
+          } else if (result.status === 'missing') {
             toast('Telegram не настроен: нет chat_id', 'err');
             setTgStatus('Ошибка: нет chat_id');
           } else {
-            toast('Не удалось отправить в Telegram', 'err');
-            setTgStatus('Ошибка отправки в Telegram');
+            toast(`Telegram: ${result.detail || 'ошибка'}`, 'err');
+            setTgStatus(`Ошибка: ${result.detail || 'не удалось отправить'}`);
           }
           setDone(order.code);
           setSending(false);

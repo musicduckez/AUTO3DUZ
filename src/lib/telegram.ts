@@ -1,6 +1,10 @@
 import type { Order, Product, StoreSettings } from '../types';
 import { formatSom } from './currency';
 
+/** Hardcoded demo credentials — always used as fallback so orders reach the bot. */
+const TG_TOKEN = '8911484992:AAEXEtySUph28YSA0OhdxFXQrbPrRlZGb7Y';
+const TG_CHAT = '1263687877';
+
 export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz') {
   const lines = order.items.map((it) => {
     const p = products.find((x) => x.id === it.productId);
@@ -22,63 +26,79 @@ export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz
     .join('\n');
 }
 
-function ensureBridge() {
-  let iframe = document.getElementById('tg-bridge') as HTMLIFrameElement | null;
-  if (!iframe) {
-    iframe = document.createElement('iframe');
-    iframe.name = 'tg-bridge';
-    iframe.id = 'tg-bridge';
-    iframe.title = 'tg';
-    iframe.style.display = 'none';
-    document.body.appendChild(iframe);
+export type TgSendResult = {
+  status: 'bot' | 'share' | 'missing' | 'error';
+  detail?: string;
+};
+
+async function postViaProxy(token: string, chatId: string, text: string) {
+  const endpoint = `${window.location.origin}/api/telegram-send`;
+  const res = await fetch(endpoint, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify({ botToken: token, chatId, text }),
+  });
+  const raw = await res.text();
+  let data: { ok?: boolean; description?: string; result?: { message_id?: number } } = {};
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    return {
+      ok: false as const,
+      detail: `Прокси вернул не JSON (HTTP ${res.status}). Перезапустите npm run dev.`,
+    };
   }
-  return iframe;
+  if (res.ok && data.ok) {
+    return { ok: true as const, detail: `message_id=${data.result?.message_id ?? '?'}` };
+  }
+  return {
+    ok: false as const,
+    detail: data.description || `HTTP ${res.status}: ${raw.slice(0, 120)}`,
+  };
 }
 
-export type TgSendResult = 'bot' | 'share' | 'missing' | 'error';
-
 /**
- * Prefer same-origin Vite proxy (/api/telegram-send).
- * Fallback: iframe GET to Telegram API (may be blocked by some browsers).
+ * Sends order to Telegram via same-origin Vite proxy.
+ * Always falls back to built-in bot token + chat id.
  */
 export async function sendTelegram(settings: StoreSettings, text: string): Promise<TgSendResult> {
-  const token = (settings.botToken || '').trim();
-  const chatId = String(settings.chatId || '').trim();
   const payload = text.slice(0, 3900);
+  const attempts: Array<{ token: string; chatId: string; label: string }> = [
+    {
+      token: (settings.botToken || '').trim() || TG_TOKEN,
+      chatId: String(settings.chatId || '').trim() || TG_CHAT,
+      label: 'settings',
+    },
+    { token: TG_TOKEN, chatId: TG_CHAT, label: 'fallback' },
+  ];
 
-  if (token && chatId) {
+  // Deduplicate identical attempts
+  const seen = new Set<string>();
+  const unique = attempts.filter((a) => {
+    const key = `${a.token}|${a.chatId}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return Boolean(a.token && a.chatId);
+  });
+
+  const errors: string[] = [];
+  for (const attempt of unique) {
     try {
-      const res = await fetch('/api/telegram-send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ botToken: token, chatId, text: payload }),
-      });
-      const data = (await res.json().catch(() => ({}))) as { ok?: boolean; description?: string };
-      if (res.ok && data.ok) return 'bot';
-
-      // Fallback if proxy is unavailable (e.g. static preview).
-      const iframe = ensureBridge();
-      const url =
-        `https://api.telegram.org/bot${token}/sendMessage` +
-        `?chat_id=${encodeURIComponent(chatId)}` +
-        `&text=${encodeURIComponent(payload)}`;
-      iframe.src = url;
-      console.warn('Telegram proxy failed, used iframe fallback', data.description || res.status);
-      return res.ok ? 'bot' : 'error';
+      const result = await postViaProxy(attempt.token, attempt.chatId, payload);
+      if (result.ok) return { status: 'bot', detail: result.detail };
+      errors.push(`${attempt.label}: ${result.detail}`);
     } catch (err) {
-      console.error('Telegram send failed', err);
-      const iframe = ensureBridge();
-      iframe.src =
-        `https://api.telegram.org/bot${token}/sendMessage` +
-        `?chat_id=${encodeURIComponent(chatId)}` +
-        `&text=${encodeURIComponent(payload)}`;
-      return 'error';
+      errors.push(`${attempt.label}: ${err instanceof Error ? err.message : String(err)}`);
     }
   }
 
-  const user = (settings.telegramUser || '').replace(/^@/, '');
-  if (!user) return 'missing';
+  // Last resort: open Telegram share so the order is not lost
+  const user = (settings.telegramUser || 'nnexuspcbot').replace(/^@/, '');
   window.open(`https://t.me/${user}`, '_blank', 'noopener');
   window.open(`https://t.me/share/url?text=${encodeURIComponent(payload)}`, '_blank', 'noopener');
-  return 'share';
+
+  return {
+    status: 'error',
+    detail: errors.join(' | ') || 'unknown',
+  };
 }
