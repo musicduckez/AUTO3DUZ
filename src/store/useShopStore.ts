@@ -36,7 +36,7 @@ const K = {
 const defaultSettings: StoreSettings = {
   telegramUser: 'nnexuspcbot',
   botToken: '8911484992:AAEXEtySUph28YSA0OhdxFXQrbPrRlZGb7Y',
-  chatId: '',
+  chatId: '1263687877',
   card: '8600 **** **** 3141',
   click: '99890 123 45 67',
   payme: 'NEXUS PC · 99890 123 45 67',
@@ -129,6 +129,7 @@ export const useShopStore = create<ShopState>((set, get) => ({
       ...defaultSettings,
       ...saved,
       botToken: saved.botToken || defaultSettings.botToken,
+      chatId: saved.chatId || defaultSettings.chatId,
       telegramUser: saved.telegramUser || defaultSettings.telegramUser,
     };
   })(),

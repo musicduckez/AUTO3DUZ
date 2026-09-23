@@ -24,30 +24,41 @@ export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz
 
 export function sendTelegram(settings: StoreSettings, text: string) {
   if (settings.botToken && settings.chatId) {
-    const iframe = document.getElementById('tg-bridge') as HTMLIFrameElement | null;
-    const form = document.createElement('form');
-    form.method = 'GET';
-    form.action = `https://api.telegram.org/bot${settings.botToken}/sendMessage`;
-    form.target = iframe?.name || 'tg-bridge';
-    form.style.display = 'none';
-    const add = (name: string, value: string) => {
-      const input = document.createElement('input');
-      input.name = name;
-      input.value = value;
-      form.appendChild(input);
-    };
-    add('chat_id', settings.chatId);
-    add('text', text);
-    document.body.appendChild(form);
-    form.submit();
-    form.remove();
+    const url =
+      `https://api.telegram.org/bot${settings.botToken}/sendMessage` +
+      `?chat_id=${encodeURIComponent(settings.chatId)}` +
+      `&text=${encodeURIComponent(text)}`;
+
+    // Prefer image beacon / fetch so popup blockers do not hide delivery.
+    const img = new Image();
+    img.src = url;
+
+    void fetch(url, { mode: 'no-cors', keepalive: true }).catch(() => {
+      // Fallback: hidden form into iframe (works even if fetch is blocked).
+      const iframe = document.getElementById('tg-bridge') as HTMLIFrameElement | null;
+      const form = document.createElement('form');
+      form.method = 'GET';
+      form.action = `https://api.telegram.org/bot${settings.botToken}/sendMessage`;
+      form.target = iframe?.name || 'tg-bridge';
+      form.style.display = 'none';
+      const add = (name: string, value: string) => {
+        const input = document.createElement('input');
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+      };
+      add('chat_id', settings.chatId);
+      add('text', text);
+      document.body.appendChild(form);
+      form.submit();
+      form.remove();
+    });
     return 'bot';
   }
+
   const user = settings.telegramUser.replace(/^@/, '');
   const share = `https://t.me/share/url?text=${encodeURIComponent(text)}`;
-  if (user) {
-    window.open(`https://t.me/${user}`, '_blank', 'noopener');
-  }
+  if (user) window.open(`https://t.me/${user}`, '_blank', 'noopener');
   window.open(share, '_blank', 'noopener');
   return 'share';
 }
