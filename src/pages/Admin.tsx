@@ -225,32 +225,56 @@ function OrdersAdmin() {
   const { t } = useTranslation();
   const orders = useShopStore((s) => s.orders);
   const setOrderStatus = useShopStore((s) => s.setOrderStatus);
+  const toast = useShopStore((s) => s.toast);
 
   return (
     <div className="space-y-3">
       {!orders.length && <p>{t('empty')}</p>}
       {orders.map((o) => (
         <div key={o.id} className="glass rounded-2xl p-4">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+          <div className="flex flex-wrap items-start justify-between gap-2">
             <div>
               <p className="font-display text-lg">{o.code}</p>
               <p className="text-sm text-violet-200/70">
                 {o.name} · {o.phone} · {o.telegram}
               </p>
               <p className="text-sm">{formatSom(o.total)}</p>
+              {o.receiptUploadedAt && (
+                <p className="mt-1 text-xs text-emerald-300">
+                  {t('receipt_uploaded')} · {new Date(o.receiptUploadedAt).toLocaleString()}
+                </p>
+              )}
             </div>
-            <select
-              value={o.status}
-              onChange={(e) => setOrderStatus(o.id, e.target.value as OrderStatus)}
-              className="rounded-xl bg-black/30 px-3 py-2"
-            >
-              {statuses.map((s) => (
-                <option key={s} value={s}>
-                  {t(`status_${s}`)}
-                </option>
-              ))}
-            </select>
+            <div className="flex flex-col gap-2">
+              <select
+                value={o.status}
+                onChange={(e) => setOrderStatus(o.id, e.target.value as OrderStatus)}
+                className="rounded-xl bg-black/30 px-3 py-2"
+              >
+                {statuses.map((s) => (
+                  <option key={s} value={s}>
+                    {t(`status_${s}`)}
+                  </option>
+                ))}
+              </select>
+              {o.receiptDataUrl && o.status === 'awaiting_payment' && (
+                <button
+                  type="button"
+                  className="rounded-xl bg-emerald-600 px-3 py-2 text-sm"
+                  onClick={() => {
+                    setOrderStatus(o.id, 'paid');
+                    toast(t('pay_confirmed'));
+                  }}
+                >
+                  {t('confirm_payment')}
+                </button>
+              )}
+            </div>
           </div>
+          {o.receiptDataUrl?.startsWith('data:image') && (
+            <img src={o.receiptDataUrl} alt="receipt" className="mt-3 max-h-40 rounded-xl object-contain" />
+          )}
+          {o.receiptNote && <p className="mt-2 text-sm text-violet-200/70">{o.receiptNote}</p>}
         </div>
       ))}
     </div>
@@ -272,6 +296,8 @@ function PayAdmin() {
           botToken: String(fd.get('token') || ''),
           chatId: String(fd.get('chat') || ''),
           card: String(fd.get('card') || ''),
+          cardHolder: String(fd.get('holder') || ''),
+          cardBank: String(fd.get('bank') || ''),
           click: String(fd.get('click') || ''),
           payme: String(fd.get('payme') || ''),
         });
@@ -281,6 +307,8 @@ function PayAdmin() {
       <input name="token" defaultValue={settings.botToken} placeholder={t('bot_token')} className="rounded-xl bg-black/30 px-3 py-2" />
       <input name="chat" defaultValue={settings.chatId} placeholder={t('chat_id')} className="rounded-xl bg-black/30 px-3 py-2" />
       <input name="card" defaultValue={settings.card} placeholder={t('card')} className="rounded-xl bg-black/30 px-3 py-2" />
+      <input name="holder" defaultValue={settings.cardHolder} placeholder={t('card_holder')} className="rounded-xl bg-black/30 px-3 py-2" />
+      <input name="bank" defaultValue={settings.cardBank} placeholder={t('card_bank')} className="rounded-xl bg-black/30 px-3 py-2" />
       <input name="click" defaultValue={settings.click} placeholder={t('click')} className="rounded-xl bg-black/30 px-3 py-2" />
       <input name="payme" defaultValue={settings.payme} placeholder={t('payme')} className="rounded-xl bg-black/30 px-3 py-2" />
       <button className="rounded-xl bg-neon-600 py-2">{t('save')}</button>

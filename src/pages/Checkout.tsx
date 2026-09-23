@@ -30,8 +30,12 @@ export function Checkout() {
         <p className="font-display text-4xl text-neon-300">{done}</p>
         <p className="mt-3 text-sm">{t('track_hint')}</p>
         {tgStatus && <p className="mt-3 text-sm text-neon-300">{tgStatus}</p>}
+        <div className="mt-5 rounded-2xl bg-black/30 p-4 text-left text-sm">
+          <p className="font-semibold">{t('pay_next')}</p>
+          <p className="mt-1 text-violet-200/70">{t('pay_hint')}</p>
+        </div>
         <Link to={`/track/${done}`} className="mt-6 inline-block rounded-2xl bg-neon-600 px-5 py-3">
-          {t('nav_track')}
+          {t('pay_go')}
         </Link>
       </div>
     );

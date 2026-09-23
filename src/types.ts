@@ -84,6 +84,11 @@ export interface Order {
   items: CartItem[];
   total: number;
   delivery: number;
+  /** Payment receipt image as data URL */
+  receiptDataUrl?: string;
+  receiptFileName?: string;
+  receiptUploadedAt?: number;
+  receiptNote?: string;
 }
 
 export interface StoreSettings {
@@ -91,6 +96,8 @@ export interface StoreSettings {
   botToken: string;
   chatId: string;
   card: string;
+  cardHolder: string;
+  cardBank: string;
   click: string;
   payme: string;
   promoRu: string;

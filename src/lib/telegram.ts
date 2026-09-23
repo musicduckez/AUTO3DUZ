@@ -21,6 +21,19 @@ export function orderMessage(order: Order, products: Product[], lang: 'ru' | 'uz
     ...lines,
     '',
     `Σ ${formatSom(order.total)}`,
+    '',
+    '💳 Ждёт оплату на карту. Клиент загрузит чек в трекинге.',
+  ]
+    .filter(Boolean)
+    .join('\n');
+}
+
+export function paymentCaption(order: Order, note?: string) {
+  return [
+    `🧾 Чек оплаты · ${order.code}`,
+    `${order.name} · ${order.phone}`,
+    `Сумма: ${formatSom(order.total)}`,
+    note ? `Комментарий: ${note}` : '',
   ]
     .filter(Boolean)
     .join('\n');
@@ -101,4 +114,52 @@ export async function sendTelegram(settings: StoreSettings, text: string): Promi
     status: 'error',
     detail: errors.join(' | ') || 'unknown',
   };
+}
+
+export async function sendTelegramPhoto(
+  settings: StoreSettings,
+  payload: { dataUrl: string; fileName: string; caption: string },
+): Promise<TgSendResult> {
+  const attempts = [
+    {
+      token: (settings.botToken || '').trim() || TG_TOKEN,
+      chatId: String(settings.chatId || '').trim() || TG_CHAT,
+    },
+    { token: TG_TOKEN, chatId: TG_CHAT },
+  ];
+  const seen = new Set<string>();
+  const errors: string[] = [];
+
+  for (const attempt of attempts) {
+    const key = `${attempt.token}|${attempt.chatId}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    try {
+      const res = await fetch(`${window.location.origin}/api/telegram-photo`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          botToken: attempt.token,
+          chatId: attempt.chatId,
+          caption: payload.caption,
+          fileName: payload.fileName,
+          dataUrl: payload.dataUrl,
+        }),
+      });
+      const raw = await res.text();
+      let data: { ok?: boolean; description?: string } = {};
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        errors.push(`HTTP ${res.status} non-json`);
+        continue;
+      }
+      if (res.ok && data.ok) return { status: 'bot', detail: 'photo ok' };
+      errors.push(data.description || `HTTP ${res.status}`);
+    } catch (err) {
+      errors.push(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  return { status: 'error', detail: errors.join(' | ') || 'photo failed' };
 }

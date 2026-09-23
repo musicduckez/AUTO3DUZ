@@ -37,7 +37,9 @@ const defaultSettings: StoreSettings = {
   telegramUser: 'nnexuspcbot',
   botToken: '8911484992:AAEXEtySUph28YSA0OhdxFXQrbPrRlZGb7Y',
   chatId: '1263687877',
-  card: '8600 **** **** 3141',
+  card: '8600 0317 2941 5820',
+  cardHolder: 'NEXUS PC / Amirbek Yunusov',
+  cardBank: 'Uzcard / Humo',
   click: '99890 123 45 67',
   payme: 'NEXUS PC · 99890 123 45 67',
   promoRu: 'Весенний дроп: бесплатная сборка при заказе от 15 000 000 so\'m',
@@ -114,6 +116,10 @@ interface ShopState {
   saveSettings: (s: Partial<StoreSettings>) => void;
   placeOrder: (payload: Omit<Order, 'id' | 'code' | 'createdAt' | 'status' | 'items' | 'total'> & { total: number; items?: CartItem[] }) => Order;
   setOrderStatus: (id: string, status: OrderStatus) => void;
+  attachReceipt: (
+    code: string,
+    payload: { dataUrl: string; fileName: string; note?: string },
+  ) => Order | null;
   tryLogin: (password: string) => Promise<'ok' | 'bad' | 'lock'>;
   changePassword: (password: string) => Promise<void>;
   logoutAdmin: () => void;
@@ -131,6 +137,9 @@ export const useShopStore = create<ShopState>((set, get) => ({
       botToken: saved.botToken || defaultSettings.botToken,
       chatId: saved.chatId || defaultSettings.chatId,
       telegramUser: saved.telegramUser || defaultSettings.telegramUser,
+      card: saved.card || defaultSettings.card,
+      cardHolder: saved.cardHolder || defaultSettings.cardHolder,
+      cardBank: saved.cardBank || defaultSettings.cardBank,
     };
     // Force-persist Telegram credentials so old empty localStorage cannot block delivery.
     saveJson(K.settings, settings);
@@ -258,7 +267,7 @@ export const useShopStore = create<ShopState>((set, get) => ({
       id: toastId() + Date.now().toString(36),
       code: orderCode(),
       createdAt: Date.now(),
-      status: 'new',
+      status: 'awaiting_payment',
       name: payload.name,
       phone: payload.phone,
       telegram: payload.telegram,
@@ -278,6 +287,26 @@ export const useShopStore = create<ShopState>((set, get) => ({
     const orders = get().orders.map((o) => (o.id === id ? { ...o, status } : o));
     saveJson(K.orders, orders);
     set({ orders });
+  },
+  attachReceipt: (code, payload) => {
+    let updated: Order | null = null;
+    const orders = get().orders.map((o) => {
+      if (o.code.toUpperCase() !== code.toUpperCase()) return o;
+      updated = {
+        ...o,
+        status: o.status === 'paid' || o.status === 'done' || o.status === 'shipped' || o.status === 'assembling'
+          ? o.status
+          : 'awaiting_payment',
+        receiptDataUrl: payload.dataUrl,
+        receiptFileName: payload.fileName,
+        receiptUploadedAt: Date.now(),
+        receiptNote: payload.note || o.receiptNote,
+      };
+      return updated;
+    });
+    saveJson(K.orders, orders);
+    set({ orders });
+    return updated;
   },
   tryLogin: async (password) => {
     if (Date.now() < get().lockUntil) return 'lock';
