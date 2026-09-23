@@ -34,7 +34,7 @@ cfg["env"] = {
   "TELEGRAM_BOT_TOKEN": os.environ["TELEGRAM_BOT_TOKEN"],
   "TELEGRAM_CHAT_ID": os.environ["TELEGRAM_CHAT_ID"],
 }
-for key in ("STRIPE_SECRET_KEY", "STRIPE_PUBLISHABLE_KEY", "STRIPE_WEBHOOK_SECRET", "UZS_PER_USD", "PUBLIC_URL"):
+for key in ("STRIPE_SECRET_KEY", "STRIPE_PUBLISHABLE_KEY", "STRIPE_WEBHOOK_SECRET", "UZS_PER_USD", "PUBLIC_URL", "PAYME_MERCHANT_ID", "PAYME_MERCHANT_KEY", "PAYME_TEST", "PAYME_LOGIN"):
   val = os.environ.get(key, "").strip().strip("'").strip('"')
   if val:
     cfg["env"][key] = val

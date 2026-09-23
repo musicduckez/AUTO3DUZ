@@ -137,3 +137,26 @@ export async function apiStripeConfirm(sessionId: string) {
     error?: string;
   }>(`/api/stripe/confirm?session_id=${encodeURIComponent(sessionId)}`);
 }
+
+export async function apiPaymeConfig() {
+  return request<{
+    ok: boolean;
+    configured: boolean;
+    host?: string;
+    test?: boolean;
+  }>('/api/payme/config');
+}
+
+export async function apiPaymeCheckout(code: string, lang?: 'ru' | 'uz' | 'en') {
+  return request<{
+    ok: boolean;
+    url?: string;
+    amountUzs?: number;
+    amountTiyin?: number;
+    host?: string;
+    error?: string;
+  }>('/api/payme/checkout', {
+    method: 'POST',
+    body: JSON.stringify({ code, lang }),
+  });
+}
