@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "db:migrate": "node scripts/migrate.mjs",
-    "deploy": "vercel deploy --prod"
+    "deploy": "vercel deploy --prod",
+    "deploy:temp": "bash scripts/deploy-temporary.sh"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",
