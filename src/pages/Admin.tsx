@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { seedProducts } from '../data/products';
 import { formatSom } from '../lib/currency';
@@ -237,20 +237,29 @@ function OrdersAdmin() {
   const orders = useShopStore((s) => s.orders);
   const settings = useShopStore((s) => s.settings);
   const setOrderStatus = useShopStore((s) => s.setOrderStatus);
+  const refreshOrders = useShopStore((s) => s.refreshOrders);
+  const backendMode = useShopStore((s) => s.backendMode);
   const toast = useShopStore((s) => s.toast);
   const [busyId, setBusyId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (backendMode === 'api') void refreshOrders();
+  }, [backendMode, refreshOrders]);
 
   const changeStatus = async (order: Order, status: OrderStatus) => {
     if (order.status === status) return;
     setBusyId(order.id);
-    setOrderStatus(order.id, status);
     const text = [
       `📦 NEXUS PC · ${order.code}`,
       `Статус: ${t(`status_${status}`)}`,
       `${order.name} · ${order.phone}`,
       `Σ ${formatSom(order.total)}`,
     ].join('\n');
-    const result = await sendTelegram(settings, text);
+    const remote = await setOrderStatus(order.id, status, text);
+    let result = remote.telegram;
+    if (!result || result.status !== 'bot') {
+      result = await sendTelegram(settings, text);
+    }
     setBusyId(null);
     toast(t('status_changed'));
     if (result.status === 'bot') toast(t('notify_client'), 'info');

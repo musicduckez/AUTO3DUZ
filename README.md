@@ -1,8 +1,10 @@
 # NEXUS PC
 
-Демо-магазин комплектующих и конфигуратор ПК: виды **2D / 3D / схема сверху**, расчёт FPS, корзина, оплата через Telegram, языки **RU / UZ**, валюта **so'm**.
+Магазин комплектующих и конфигуратор ПК: виды **2D / 3D / схема сверху**, расчёт FPS, корзина, оплата через Telegram, языки **RU / UZ**, валюта **so'm**.
 
-## Запуск
+Стек: **Vite + React + TypeScript + Tailwind + Zustand + i18next + R3F**, backend на **Vercel Serverless** + **Neon Postgres**.
+
+## Локальный запуск
 
 ```bash
 npm install
@@ -11,29 +13,57 @@ npm run dev
 
 Сборка: `npm run build` · предпросмотр: `npm run preview`.
 
+## Деплой Vercel + Neon
+
+1. Создайте Neon DB (или claimable: `curl -X POST https://neon.new/api/v1/database -H 'Content-Type: application/json' -d '{"ref":"nexus-pc"}'`).
+2. Пропишите env:
+
+```bash
+DATABASE_URL=postgresql://...
+TELEGRAM_BOT_TOKEN=...
+TELEGRAM_CHAT_ID=...
+```
+
+3. Задеплойте:
+
+Временный деплой без логина Vercel:
+
+```bash
+npm run deploy:temp
+```
+
+Прод (нужен `vercel login`):
+
+```bash
+npx vercel deploy --prod \
+  -e DATABASE_URL="$DATABASE_URL" \
+  -e TELEGRAM_BOT_TOKEN="$TELEGRAM_BOT_TOKEN" \
+  -e TELEGRAM_CHAT_ID="$TELEGRAM_CHAT_ID"
+```
+
+API routes:
+
+| Method | Path | Описание |
+|--------|------|----------|
+| GET | `/api/health` | проверка Neon + Telegram env |
+| GET/PUT | `/api/settings` | реквизиты / промо |
+| GET/POST | `/api/orders` | список / создание заказа |
+| GET/PATCH | `/api/orders/:code` | трекинг / статус / чек |
+| POST | `/api/telegram-send` | прокси текста в бот |
+| POST | `/api/telegram-photo` | прокси чека в бот |
+
+Схема: `scripts/schema.sql` (применяется автоматически при первом запросе).
+
 ## Скрытая админка
 
 - URL: `/nx-console` (в меню нет)
 - пароль по умолчанию: `nexus-admin`
 - после 5 ошибок вход блокируется на 30 секунд
-- можно сменить пароль во вкладке «Витрина»
 
 ## Telegram
 
-Бот по умолчанию: [@nnexuspcbot](https://t.me/nnexuspcbot) (токен уже прописан в настройках).
+Бот по умолчанию: [@nnexuspcbot](https://t.me/nnexuspcbot).
 
-Чтобы заказы приходили в Telegram:
+На проде токен и `chat_id` задаются через env Vercel. В админке можно переопределить.
 
-1. Напишите боту `/start` с аккаунта, куда нужны заказы.
-2. Узнайте свой `chat_id` (например через `@userinfobot`) и вставьте его в админке `/nx-console` → «Telegram и оплата».
-3. Если заданы **bot token** + **chat_id**, заказ уходит боту через Telegram Bot API. Иначе открывается share-ссылка.
-
-После статуса «подтверждён» клиент видит реквизиты карты / Click / Payme на странице трекинга.
-
-## Данные
-
-Каталог, игры, заказы и настройки хранятся в `localStorage` браузера. Это демо без backend.
-
-## Стек
-
-Vite, React, TypeScript, Tailwind, Zustand, react-i18next, React Three Fiber.
+После оформления заказ пишется в Neon и уходит в Telegram. Клиент оплачивает на карту и загружает чек на `/track/:code`.
