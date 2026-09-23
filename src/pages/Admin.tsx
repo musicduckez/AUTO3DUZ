@@ -2,10 +2,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { seedProducts } from '../data/products';
 import { formatSom } from '../lib/currency';
+import { sendTelegram } from '../lib/telegram';
 import { useShopStore } from '../store/useShopStore';
-import type { Category, Game, Localized, OrderStatus, Product } from '../types';
+import type { Category, Game, Localized, Order, OrderStatus, Product } from '../types';
 
-const tabs = ['products', 'games', 'orders', 'pay', 'promo'] as const;
+const tabs = ['orders', 'products', 'games', 'pay', 'promo'] as const;
 const statuses: OrderStatus[] = [
   'new',
   'confirmed',
@@ -15,6 +16,16 @@ const statuses: OrderStatus[] = [
   'shipped',
   'done',
 ];
+
+const statusColors: Record<OrderStatus, string> = {
+  new: 'bg-slate-600',
+  confirmed: 'bg-sky-600',
+  awaiting_payment: 'bg-amber-600',
+  paid: 'bg-emerald-600',
+  assembling: 'bg-violet-600',
+  shipped: 'bg-indigo-600',
+  done: 'bg-fuchsia-700',
+};
 
 export function Admin() {
   const { t, i18n } = useTranslation();
@@ -222,17 +233,36 @@ function GamesAdmin() {
 }
 
 function OrdersAdmin() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const orders = useShopStore((s) => s.orders);
+  const settings = useShopStore((s) => s.settings);
   const setOrderStatus = useShopStore((s) => s.setOrderStatus);
   const toast = useShopStore((s) => s.toast);
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const changeStatus = async (order: Order, status: OrderStatus) => {
+    if (order.status === status) return;
+    setBusyId(order.id);
+    setOrderStatus(order.id, status);
+    const text = [
+      `📦 NEXUS PC · ${order.code}`,
+      `Статус: ${t(`status_${status}`)}`,
+      `${order.name} · ${order.phone}`,
+      `Σ ${formatSom(order.total)}`,
+    ].join('\n');
+    const result = await sendTelegram(settings, text);
+    setBusyId(null);
+    toast(t('status_changed'));
+    if (result.status === 'bot') toast(t('notify_client'), 'info');
+  };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
+      <p className="text-sm text-violet-200/70">{t('quick_status')}</p>
       {!orders.length && <p>{t('empty')}</p>}
       {orders.map((o) => (
         <div key={o.id} className="glass rounded-2xl p-4">
-          <div className="flex flex-wrap items-start justify-between gap-2">
+          <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="font-display text-lg">{o.code}</p>
               <p className="text-sm text-violet-200/70">
@@ -241,36 +271,44 @@ function OrdersAdmin() {
               <p className="text-sm">{formatSom(o.total)}</p>
               {o.receiptUploadedAt && (
                 <p className="mt-1 text-xs text-emerald-300">
-                  {t('receipt_uploaded')} · {new Date(o.receiptUploadedAt).toLocaleString()}
+                  {t('receipt_uploaded')} · {new Date(o.receiptUploadedAt).toLocaleString(i18n.language)}
                 </p>
               )}
             </div>
-            <div className="flex flex-col gap-2">
-              <select
-                value={o.status}
-                onChange={(e) => setOrderStatus(o.id, e.target.value as OrderStatus)}
-                className="rounded-xl bg-black/30 px-3 py-2"
-              >
-                {statuses.map((s) => (
-                  <option key={s} value={s}>
-                    {t(`status_${s}`)}
-                  </option>
-                ))}
-              </select>
-              {o.receiptDataUrl && o.status === 'awaiting_payment' && (
-                <button
-                  type="button"
-                  className="rounded-xl bg-emerald-600 px-3 py-2 text-sm"
-                  onClick={() => {
-                    setOrderStatus(o.id, 'paid');
-                    toast(t('pay_confirmed'));
-                  }}
-                >
-                  {t('confirm_payment')}
-                </button>
-              )}
-            </div>
+            <span className={`rounded-full px-3 py-1 text-xs font-semibold text-white ${statusColors[o.status]}`}>
+              {t(`status_${o.status}`)}
+            </span>
           </div>
+
+          <p className="mb-2 text-xs uppercase tracking-wide text-violet-200/50">{t('status_label')}</p>
+          <div className="flex flex-wrap gap-2">
+            {statuses.map((s) => (
+              <button
+                key={s}
+                type="button"
+                disabled={busyId === o.id}
+                onClick={() => void changeStatus(o, s)}
+                className={`rounded-xl px-3 py-2 text-xs font-medium transition ${
+                  o.status === s
+                    ? `${statusColors[s]} text-white ring-2 ring-white/40`
+                    : 'bg-white/5 text-violet-100 hover:bg-white/10'
+                } disabled:opacity-50`}
+              >
+                {t(`status_${s}`)}
+              </button>
+            ))}
+          </div>
+
+          {o.receiptDataUrl && o.status === 'awaiting_payment' && (
+            <button
+              type="button"
+              className="mt-3 rounded-xl bg-emerald-600 px-3 py-2 text-sm"
+              onClick={() => void changeStatus(o, 'paid')}
+            >
+              {t('confirm_payment')}
+            </button>
+          )}
+
           {o.receiptDataUrl?.startsWith('data:image') && (
             <img src={o.receiptDataUrl} alt="receipt" className="mt-3 max-h-40 rounded-xl object-contain" />
           )}
