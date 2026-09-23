@@ -258,9 +258,19 @@ function OrdersAdmin() {
 
   return (
     <div className="space-y-4">
-      <p className="text-sm text-violet-200/70">{t('quick_status')}</p>
+      <div className="glass rounded-2xl p-4 text-sm text-violet-100/80">
+        <p className="font-semibold text-white">{t('status_help_title')}</p>
+        <p className="mt-1">{t('status_help_body')}</p>
+      </div>
       {!orders.length && <p>{t('empty')}</p>}
-      {orders.map((o) => (
+      {[...orders]
+        .sort((a, b) => {
+          const ar = a.receiptDataUrl && a.status === 'awaiting_payment' ? 0 : 1;
+          const br = b.receiptDataUrl && b.status === 'awaiting_payment' ? 0 : 1;
+          if (ar !== br) return ar - br;
+          return b.createdAt - a.createdAt;
+        })
+        .map((o) => (
         <div key={o.id} className="glass rounded-2xl p-4">
           <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -280,6 +290,46 @@ function OrdersAdmin() {
             </span>
           </div>
 
+          {o.receiptDataUrl && ['awaiting_payment', 'confirmed', 'new'].includes(o.status) && (
+            <div className="mb-4 rounded-2xl border border-emerald-400/40 bg-emerald-500/10 p-3">
+              <p className="mb-2 text-sm font-semibold text-emerald-200">{t('receipt_next')}</p>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  disabled={busyId === o.id}
+                  className="rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                  onClick={() => void changeStatus(o, 'paid')}
+                >
+                  1. {t('status_paid')}
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === o.id}
+                  className="rounded-xl bg-violet-600 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                  onClick={() => void changeStatus(o, 'assembling')}
+                >
+                  2. {t('status_assembling')}
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === o.id}
+                  className="rounded-xl bg-indigo-600 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                  onClick={() => void changeStatus(o, 'shipped')}
+                >
+                  3. {t('status_shipped')}
+                </button>
+                <button
+                  type="button"
+                  disabled={busyId === o.id}
+                  className="rounded-xl bg-fuchsia-700 px-4 py-2 text-sm font-semibold disabled:opacity-50"
+                  onClick={() => void changeStatus(o, 'done')}
+                >
+                  4. {t('status_done')}
+                </button>
+              </div>
+            </div>
+          )}
+
           <p className="mb-2 text-xs uppercase tracking-wide text-violet-200/50">{t('status_label')}</p>
           <div className="flex flex-wrap gap-2">
             {statuses.map((s) => (
@@ -298,16 +348,6 @@ function OrdersAdmin() {
               </button>
             ))}
           </div>
-
-          {o.receiptDataUrl && o.status === 'awaiting_payment' && (
-            <button
-              type="button"
-              className="mt-3 rounded-xl bg-emerald-600 px-3 py-2 text-sm"
-              onClick={() => void changeStatus(o, 'paid')}
-            >
-              {t('confirm_payment')}
-            </button>
-          )}
 
           {o.receiptDataUrl?.startsWith('data:image') && (
             <img src={o.receiptDataUrl} alt="receipt" className="mt-3 max-h-40 rounded-xl object-contain" />

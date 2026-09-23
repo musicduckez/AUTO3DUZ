@@ -95,6 +95,10 @@ export const uz = {
   confirm_payment: 'To‘lovni tasdiqlash',
   status_changed: 'Holat yangilandi',
   status_label: 'Buyurtma holati',
+  status_help_title: 'Chekdan keyin holatni qanday o‘zgartirish',
+  status_help_body:
+    '1) Chekli buyurtmani oching  2) «To‘langan» ni bosing  3) Keyin «Yig‘ilmoqda» → «Jo‘natilgan» → «Yakunlangan». Mijoz kuzatishda yangi holatni ko‘radi.',
+  receipt_next: 'Chek qabul qilindi — keyingi holatni tanlang:',
   notify_client: 'Telegramga yuborildi (adminga)',
   quick_status: 'Tezkor holat o‘zgartirish',
   receipt_title: 'Chek yuborish',
