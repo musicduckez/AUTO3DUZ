@@ -89,6 +89,10 @@ export interface Order {
   receiptFileName?: string;
   receiptUploadedAt?: number;
   receiptNote?: string;
+  paymentMethod?: 'stripe' | 'card_transfer' | string;
+  stripeSessionId?: string;
+  stripePaymentIntent?: string;
+  paidAt?: number;
 }
 
 export interface StoreSettings {

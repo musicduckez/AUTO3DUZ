@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams } from 'react-router-dom';
+import { apiStripeCheckout, apiStripeConfig, apiStripeConfirm } from '../lib/api';
 import { formatSom } from '../lib/currency';
 import { paymentCaption, sendTelegramPhoto } from '../lib/telegram';
 import { useShopStore } from '../store/useShopStore';
@@ -45,15 +46,19 @@ function compressImage(file: File, maxSide = 1600, quality = 0.82): Promise<{ da
 export function Track() {
   const { t } = useTranslation();
   const { code: codeParam } = useParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [code, setCode] = useState(codeParam ?? '');
   const [query, setQuery] = useState(codeParam ?? '');
   const [note, setNote] = useState('');
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState('');
   const [busy, setBusy] = useState(false);
+  const [stripeBusy, setStripeBusy] = useState(false);
   const [copied, setCopied] = useState(false);
   const [msg, setMsg] = useState('');
   const [loading, setLoading] = useState(false);
+  const [stripeOn, setStripeOn] = useState(false);
+  const [usdHint, setUsdHint] = useState<string>('');
 
   const orders = useShopStore((s) => s.orders);
   const settings = useShopStore((s) => s.settings);
@@ -76,6 +81,46 @@ export function Track() {
     void loadOrderByCode(query).finally(() => setLoading(false));
   }, [query, loadOrderByCode]);
 
+  useEffect(() => {
+    void apiStripeConfig().then((res) => {
+      if (!res.ok) return;
+      setStripeOn(Boolean(res.data.configured));
+      if (res.data.sample) {
+        setUsdHint(`$${res.data.sample.usd.toFixed(2)} / ${res.data.uzsPerUsd?.toLocaleString('ru-RU')} so'm`);
+      }
+    });
+  }, []);
+
+  useEffect(() => {
+    const stripe = searchParams.get('stripe');
+    const sessionId = searchParams.get('session_id');
+    if (!stripe) return;
+
+    if (stripe === 'cancel') {
+      toast(t('pay_stripe_cancel'), 'info');
+      setMsg(t('pay_stripe_cancel'));
+      setSearchParams({}, { replace: true });
+      return;
+    }
+
+    if (stripe === 'success' && sessionId) {
+      void (async () => {
+        setStripeBusy(true);
+        const res = await apiStripeConfirm(sessionId);
+        setStripeBusy(false);
+        setSearchParams({}, { replace: true });
+        if (res.ok && res.data.paid && res.data.order) {
+          await loadOrderByCode(res.data.order.code);
+          toast(t('pay_stripe_ok'));
+          setMsg(t('pay_stripe_ok'));
+        } else {
+          toast(res.ok ? t('pay_stripe_fail') : res.error, 'err');
+          setMsg(res.ok ? t('pay_stripe_fail') : res.error);
+        }
+      })();
+    }
+  }, [searchParams, setSearchParams, toast, t, loadOrderByCode]);
+
   const copyCard = async () => {
     try {
       await navigator.clipboard.writeText(settings.card.replace(/\s/g, ''));
@@ -85,6 +130,20 @@ export function Track() {
     } catch {
       toast(t('toast_err'), 'err');
     }
+  };
+
+  const payStripe = async () => {
+    if (!order) return;
+    setStripeBusy(true);
+    const res = await apiStripeCheckout(order.code);
+    setStripeBusy(false);
+    if (res.ok && res.data.url) {
+      window.location.href = res.data.url;
+      return;
+    }
+    const err = res.ok ? res.data.error || t('pay_stripe_fail') : res.error;
+    toast(err, 'err');
+    setMsg(err);
   };
 
   return (
@@ -111,6 +170,9 @@ export function Track() {
             <p className="mt-2 text-sm text-violet-200/70">
               {order.name} · {order.city} · {formatSom(order.total)}
             </p>
+            {order.paymentMethod === 'stripe' && order.paidAt && (
+              <p className="mt-1 text-xs text-emerald-300">Stripe · {new Date(order.paidAt).toLocaleString()}</p>
+            )}
           </div>
 
           <ol className="space-y-2">
@@ -130,6 +192,27 @@ export function Track() {
                 <p className="text-xs uppercase tracking-wide text-violet-200/60">{t('pay_amount')}</p>
                 <p className="font-display text-2xl font-bold text-neon-300">{formatSom(order.total)}</p>
               </div>
+
+              <div className="mb-5 rounded-2xl border border-sky-400/30 bg-sky-500/10 p-4">
+                <p className="mb-1 font-semibold text-sky-100">{t('pay_stripe')}</p>
+                <p className="mb-3 text-sm text-violet-200/70">{t('pay_stripe_hint')}</p>
+                {usdHint && (
+                  <p className="mb-3 text-xs text-sky-200/80">
+                    {t('pay_stripe_usd')} {usdHint}
+                  </p>
+                )}
+                <button
+                  type="button"
+                  disabled={stripeBusy || !stripeOn}
+                  onClick={() => void payStripe()}
+                  className="w-full rounded-2xl bg-sky-500 py-3 font-semibold text-slate-950 disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {stripeBusy ? '…' : stripeOn ? t('pay_stripe') : t('pay_stripe_off')}
+                </button>
+                {!stripeOn && <p className="mt-2 text-xs text-amber-200/90">{t('pay_stripe_setup')}</p>}
+              </div>
+
+              <p className="mb-3 text-sm font-semibold text-violet-100">{t('pay_or_card')}</p>
 
               <div className="space-y-2 text-sm">
                 <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white/5 px-3 py-2">

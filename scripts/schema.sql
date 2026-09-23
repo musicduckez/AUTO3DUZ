@@ -22,7 +22,12 @@ CREATE TABLE IF NOT EXISTS orders (
   receipt_data_url TEXT,
   receipt_file_name TEXT,
   receipt_uploaded_at BIGINT,
-  receipt_note TEXT
+  receipt_note TEXT,
+  payment_method TEXT,
+  stripe_session_id TEXT,
+  stripe_payment_intent TEXT,
+  paid_at BIGINT
 );
 
 CREATE INDEX IF NOT EXISTS orders_created_at_idx ON orders (created_at DESC);
+CREATE INDEX IF NOT EXISTS orders_stripe_session_idx ON orders (stripe_session_id);
